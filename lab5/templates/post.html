@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Post{% endblock %}
+{% block liNav %}
+    <li class="nav-item">
+    <a class="nav-link" aria-current="page" href="{{url_for('index')}}">Home</a>
+    </li>
+    <span class="d-none d-lg-block">|</span>
+    <li class="nav-item">
+    <a class="nav-link" href="{{url_for('chi_siamo')}}">Chi siamo</a>
+    </li>
+{% endblock %}
+{% block content %}
+        <div class="container-fluid mt-5">
+            <div class="row">
+                <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+                    <img src="{{url_for('static',filename=singlePost.imgPost)}}" class="img-fluid immPost p-2">
+                </div>
+                <div class="col-lg-8 col-md-6 col-sm-12 col-12">
+                    <div class="row">
+                        <div class="flex-shrink-0 dimDiv2 col-lg-4 col-4 col-sm-4 col-md-4">
+                            <img src="{{url_for('static',filename=singlePost.imgProfilo)}}" class="img-fluid rounded-circle">
+                        </div>
+                        <div class="flex-grow-1 ms-3 col-lg-8 col-8 col-sm-8 col-md-8">
+                            <h5>{{singlePost.username}}<small class="text-muted"><i>{{singlePost.data}}</i></small></h5>
+                        </div>
+                    </div>
+                    <div class="pad">
+                        <p>{{singlePost.testo}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid mt-5 contCommenti">
+            <form action="/newComment/{{singlePost.id}}" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <h4>Lascia un commento</h4>
+                    <label for="username">Nome (opzionale)</label>
+                    <input type="text" name="username" id="fullname" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="commento">Commento</label>
+                    <textarea name="commento" msg cols="30" rows="5" class="form-control" required></textarea>
+                </div>
+                <div class="form-group rating">
+                    <input type="radio" name="rating" value="5" id="5"><label for="5">☆</label>
+                    <input type="radio" name="rating" value="4" id="4"><label for="4">☆</label>
+                    <input type="radio" name="rating" value="3" id="3"><label for="3">☆</label>
+                    <input type="radio" name="rating" value="2" id="2"><label for="2">☆</label>
+                    <input type="radio" name="rating" value="1" id="1"><label for="1">☆</label>
+                  </div>
+                <div class="form-group">
+                    <label for="imgCommento" class="form-label">Aggiungi un'immagine al commento (opzionale)</label>
+                    <input class="form-control" type="file" name="imgCommento">
+                </div>
+                <br>
+                <div class="form-group">
+                    <button type="submit" id="post" class="btn btn-success">Aggiungi Commento</button>
+                </div>
+            </form>
+            <br>
+            <div class="row">
+                <h4>Commenti</h4>
+            </div>
+            
+            <div style="background-color: #e7effd;">
+                <div class="container my-5 py-5 text-dark">
+                    {% for comment in singlePost.comment_list %}
+                        {% if comment.comment_list != [] %}
+                        <div class="row d-flex justify-content-center">
+                            <div class="col-md-11 col-lg-9 col-xl-7">
+                            <div class="d-flex flex-start mb-4">
+                                <img class="rounded-circle shadow-1-strong me-3"
+                                src="{{url_for('static',filename=comment.imgCommento)}}" alt="avatar" width="65"
+                                height="65" />
+                                <div class="card w-100">
+                                <div class="card-body p-4">
+                                    <div>
+                                    <h5>{{comment.username}}</h5>
+                                    {%for val in range(0, comment.rating | int )%}
+                                        <label for="{{val}}">☆</label>
+                                    {%endfor%}
+                                    <p>{{comment.commento}}</p>
+
+                    
+                                    <!--<div class="d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center">
+                                        <a href="#!" class="link-muted me-2"><i class="fas fa-thumbs-up me-1"></i>132</a>
+                                        <a href="#!" class="link-muted"><i class="fas fa-thumbs-down me-1"></i>15</a>
+                                        </div>
+                                        <a href="#!" class="link-muted"><i class="fas fa-reply me-1"></i> Reply</a>
+                                    </div>-->
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        {%endif%}
+                    {%endfor%}
+                </div>
+            </div>
+        </div>
+
+        <!--<div class="row">
+                <div class="d-flex col-lg-11 col-md-11 col-sm-11 col-11">
+                    <div class="flex-shrink-0 dimDiv">
+                        <img src="{{url_for('static',filename=singlePost.imgProfilo)}}" class="img-fluid rounded-circle">
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h5>{{singlePost.username}} <small class="text-muted"><i>{{singlePost.data}}</i></small></h5>
+                        <p>Sesso al Museo Egizio</p>
+
+                        <div class="d-flex mt-4">
+                            <div class="flex-shrink-0 dimDiv">
+                                <img src="{{url_for('static',filename='img/facciaF.jpg')}}" class="img-fluid rounded-circle">
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <div class="row">
+                                    <div class="col-11">
+                                        <h5>Federico Carollo<small class="text-muted"><i>1 giorno fa</i></small></h5>
+                                        <p>Ciao Davide❤️❤️❤️</p>
+                                    </div>
+                                    <div class="col-lg-1 col-md-1 col-sm-1 col-1 heart">🤍</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1 col-1 heart">🤍</div>
+            </div>
+            <div class="row mt-3">
+                <div class="d-flex col-lg-11 col-md-11 col-sm-11 col-11">
+                    <div class="flex-shrink-0 dimDiv">
+                        <img src="{{url_for('static',filename='img/facciaM.jpg')}}" class="rounded-circle img-fluid">
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h5>Michele Carena<small class="text-muted"><i>1 giorno fa</i></small></h5>
+                        <p>Poverini</p>
+                    </div>
+                    
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1 col-1 heart">🤍</div>
+            </div>
+            <div class="row mt-3">
+                <div class="d-flex col-lg-11 col-md-11 col-sm-11 col-11">
+                    <div class="flex-shrink-0 dimDiv">
+                        <img src="{{url_for('static',filename='img/facciaM.jpg')}}" class="rounded-circle img-fluid">
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h5>Michele Carena<small class="text-muted"><i>Oggi</i></small></h5>
+                        <p>Ciao Ragazzi</p>
+                    </div>
+                    
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1 col-1 heart">🤍</div>
+            </div>
+        -->
+{% endblock %}
