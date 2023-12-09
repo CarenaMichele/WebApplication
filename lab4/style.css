@@ -1,0 +1,84 @@
+.btn-circle{
+    background-color: #04AA6D;
+    border: none;
+    border-radius: 50%;
+    bottom: 30px;
+    color: white;
+    height: 60px;
+    position: fixed;
+    right: 30px;
+    text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
+    width: 60px;
+}
+
+.dimDiv{
+    width: 8%;
+    height: 8%;
+}
+
+.dimDiv2{
+    width: 8%;
+    height: 8%;
+}
+
+
+.immPost{
+    margin: auto;
+    display: block;
+    width: 70%;
+    height: auto;
+}
+
+.pad{
+    margin-top: 10%;
+}
+
+.heart{
+    font-size: 40px;
+    border: none;
+    background-color: white;
+    cursor: pointer;
+}
+
+
+
+
+@media (max-width:768px) {
+    .pad{
+        margin-top: 2%;
+    }
+
+    .dimDiv2{
+        width: 10%;
+        height: 10%;
+    }
+
+    .immPost{
+        margin-bottom: 5%;
+    }
+
+    .heart{
+        font-size: 20px;
+    }
+
+}
+
+@media (768px<=width<=992px){
+    .dimDiv2{
+        width: 20%;
+    }
+
+    .heart{
+        font-size: 30px;
+    }
+    
+}
+
+@media (width>992px){
+    .dimDiv{
+        width: 4%;
+    }
+    
+}

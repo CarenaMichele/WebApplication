@@ -1,0 +1,77 @@
+body{
+    width: 80%;
+    margin: 0 auto;
+}
+
+header>div{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5%;
+    margin-bottom: 5%;
+}
+
+div>h1{
+    flex:2;
+}
+
+.container,  .uno, .due, .tre{
+    display:flex;
+}
+
+aside{
+    flex:1;
+    margin-right: 5%;
+}
+
+main{
+    flex:3;
+}
+
+#elenco, .commenti, #title{
+    border-color: black;
+    border-style: solid;
+    border-width: 1px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.foto{
+    padding-top: 1rem;
+    width: 40%;
+    padding-right: 1rem;
+}
+
+.testo >div{
+    display: flex;
+    flex: 2;
+}
+
+div>.tag{
+    flex:2;
+}
+
+.icona{
+    width: 7%;
+}
+
+.fotoProf{
+    width: 100%;
+    height: auto;
+}
+.tre{
+    position: relative;
+}
+
+.button{
+    position: fixed;
+    border-radius: 50%;
+    font-size: 50px;
+    bottom: 30px;
+    height: 60px;
+    width: 60px;
+    right: 30px;
+    vertical-align: middle;
+}
+
+

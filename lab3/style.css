@@ -1,0 +1,15 @@
+
+.btn-circle{
+    background-color: #04AA6D;
+    border: none;
+    border-radius: 50%;
+    bottom: 30px;
+    color: white;
+    height: 60px;
+    position: fixed;
+    right: 30px;
+    text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
+    width: 60px;
+}

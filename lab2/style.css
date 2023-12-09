@@ -1,0 +1,206 @@
+body{
+    width: 80%;
+    margin: 0 auto;
+}
+
+header>div{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5%;
+    margin-bottom: 5%;
+}
+
+div>h1{
+    flex:2;
+}
+
+.container,  .uno, .due, .tre{
+    display:flex;
+}
+
+aside{
+    flex:1;
+    margin-right: 5%;
+}
+
+main{
+    flex:3;
+}
+
+#elenco, .commenti, #title{
+    border-color: black;
+    border-style: solid;
+    border-width: 1px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.foto{
+    padding-top: 1rem;
+    width: 40%;
+    padding-right: 1rem;
+}
+
+.testo >div{
+    display: flex;
+    flex: 2;
+}
+
+div>.tag{
+    flex:2;
+}
+
+.icona{
+    width: 7%;
+}
+
+.fotoProf{
+    width: 100%;
+    height: auto;
+}
+.tre{
+    position: relative;
+}
+
+.button{
+    position: fixed;
+    border-radius: 50%;
+    font-size: 50px;
+    bottom: 30px;
+    height: 60px;
+    width: 60px;
+    right: 30px;
+    vertical-align: middle;
+}
+
+
+@media (max-width:600px) {
+    body{
+        width: 95%;
+    }
+    #elenco{
+        border: none;
+        padding-left: 0;
+        padding-right: 0;
+        text-align: center;
+    }
+    .container{
+        display: inline;
+    }
+
+    aside{
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        display: inline;
+    }
+
+    #elenco li{
+        display: inline;
+    }
+
+    #elenco ul{
+        padding-left: 0;
+        right: 0;
+    }
+
+    .li1{
+        float: left;
+    }
+
+    .li3{
+        float: right;
+    }
+
+    .button{
+        position: fixed;
+        border-radius: 50%;
+        font-size: 30px;
+        bottom: 30px;
+        height: 40px;
+        width: 40px;
+        right: 30px;
+        vertical-align: middle;
+    }
+
+    #home, #chisiamo, #blank{
+        display: none;
+    }
+
+    .uno, .due, .tre{
+        display: block;
+    }
+
+    .foto{
+        width: 100%;
+    }
+
+    .fotoProf{
+        height: 500px;
+    }
+
+   
+}
+
+
+
+@media (600px<=width<=1000px){
+    body{
+        width: 95%;
+    }
+    #elenco{
+        border: none;
+        padding-left: 0;
+        padding-right: 0;
+        text-align: center;
+    }
+
+    .container{
+        display: inline;
+    }
+
+    .testo{
+        width: 50%;
+    }
+
+    .button{
+        position: fixed;
+        border-radius: 50%;
+        font-size: 30px;
+        bottom: 30px;
+        height: 40px;
+        width: 40px;
+        right: 30px;
+        vertical-align: middle;
+    }
+
+    aside{
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        display: inline;
+    }
+
+    #elenco li{
+        display: inline;
+    }
+
+    #elenco ul{
+        padding-left: 0;
+        right: 0;
+    }
+
+    .li1{
+        float: left;
+    }
+
+    .li3{
+        float: right;
+    }
+}
+
+
+
+
+
