@@ -8,7 +8,8 @@ app.config['SECRET_KEY']=os.urandom(24)
 @app.route('/')  #quando il server riceve una richiesta get in questo caso, allora deve eseguire il contenuto della funzione
 def index():
    posts = posts_dao.get_posts()
-   return render_template('index.html', post=posts)
+   utenti= posts_dao.get_utenti()
+   return render_template('index.html', post=posts, utenti=utenti)
 
 @app.route('/chi_siamo')
 def chi_siamo():
@@ -24,9 +25,10 @@ def post(id):
 def new_post():
    try:
       post=request.form.to_dict()
+      #app.logger.info(post['username'])
       if post['username']=='':
          raise Exception
-      if post['testo']=='' or len(post['testo']<30):
+      if post['testo']=='':
          raise Exception
       if post['data']=='':
          raise Exception
@@ -45,7 +47,8 @@ def new_post():
          post['imgPost'] = ' '
    
    #post['imgProfilo'] =posts[0]['imgProfilo']
-      post['imgProfilo']='img/icon.jpg'
+      #post['imgProfilo']='img/icon.jpg'
+      app.logger.info(post)
       success = posts_dao.add_post(post)
 
       if success:
@@ -82,6 +85,9 @@ def new_comment(id):
       else:
          commento['imgCommento'] ='img/icon.jpg'
       commento['post_id']=id
+      current_date= date.today()
+      str_date= current_date.strftime("%Y-%m-%d")
+      commento['dataP']=str_date
       success= posts_dao.add_comment(commento)
 
       if success:
