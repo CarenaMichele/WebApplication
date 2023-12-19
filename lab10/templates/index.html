@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Homepage{% endblock %}
+{% block liNav %}
+<li class="nav-item">
+    <a class="nav-link active" aria-current="page" href="#">Home</a>
+  </li>
+  <span class="d-none d-lg-block">|</span>
+  <li class="nav-item">
+    <a class="nav-link" href="{{url_for('chi_siamo')}}">Chi siamo</a>
+  </li>
+{% endblock %}
+{% block content %}      
+    <div class="container-fluid mt-5">
+    {% for foto in post %}
+        <div class="row">
+            {% if foto.post_id == 0 %}
+                <div class="col-lg-3">
+                    <ul class="list-group d-flex flex-lg-column flex-row flex-sm-row flex-md-row  justify-content-md-between justify-content-sm-between justify-content-between mb-3">
+                        <li class="list-group-item"><a href="#">Oggi</a></li>
+                        <li class="list-group-item"><a href="#">Questa settimana</a></li>
+                        <li class="list-group-item"><a href="#">Questo mese</a></li>
+                    </ul>
+                </div>
+            {% else %}
+                <div class="col-lg-3"></div>
+            {% endif %}
+            <div class="col-lg-1"></div>
+            <div class="col-lg-8 border mb-3">
+                <div class="row">
+                    <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+                        <a href="{{url_for('post', id=foto.post_id)}}"><img src="{{url_for('static', filename=foto.imgPost)}}" class="img-fluid immPost p-2"></a>
+                    </div>
+                    <div class="col-lg-8 col-md-6">
+                        <div class="row">
+                            <div class="col-lg-2 col-md-2 col-sm-2 col-2 dimDiv2">
+                                <img src="{{url_for('static', filename=foto.imgProfilo)}}" class="img-fluid rounded-circle"> 
+                            </div>
+                            <div class="col-lg-8 col-md-6 col-sm-6 col-6"><p>@{{foto.username}}</p></div>
+                            <div class="col-lg-2 col-md-4 col-sm-4 col-4"><p class="giorni">{{foto.data}}</p>
+                            </div>
+                        </div>
+                        <div><p>{{foto.testo}}</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+    <button type="button" class="btn btn-success btn-circle" data-bs-toggle="modal" data-bs-target="#Modal">+</button>
+    <form action="/newPost" method="POST" enctype="multipart/form-data">
+        <div class="modal fade" id="Modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Crea un nuovo post</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                <label for="username">Username</label>
+                <select class="form-control" id="username" name="username">
+                    {% for user in utenti %}
+                        <option>{{user.username}}</option>
+                    {% endfor %}
+                </select>
+
+                <label for="testo">Che novità mi porti?</label>
+                <textarea class="form-control" required name="testo" rows="3" placeholder="Inserisci un testo per il tuo post" minlength="30" maxlength="200"></textarea>
+
+                <label for="imgPost" class="form-label">Aggiungi un'immagine, se vuoi</label>
+                <input class="form-control" type="file" name="imgPost">
+                
+                <label class="active" for="data">Seleziona una data</label>
+                <input class="form-control" required type="date" name="data">
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="clearInput()" value="reset Form" data-bs-dismiss="modal">Chiudi</button>
+                <button type="submit" class="btn btn-primary" >Crea Post</button>
+                </div>
+            </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}
