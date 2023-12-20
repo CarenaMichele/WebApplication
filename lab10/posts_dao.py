@@ -111,31 +111,31 @@ def add_comment(commento):
 
     return success
 
-def get_user(id):
+def get_user(username):
     conn =sqlite3.connect('db/social.db')
     conn.row_factory = sqlite3.Row 
     cursor= conn.cursor()
 
-    sql = 'SELECT * FROM utenti where utente_id=?'
-    cursor.execute(sql, (id,))
+    sql = 'SELECT * FROM utenti where username=?'
+    cursor.execute(sql, (username, ))
     user= cursor.fetchone()
 
     cursor.close()
     conn.close()
 
     return user
-"""
-def creare_utente(nuovo_utente):
-    query = 'INSERT INTO utenti(nome,cognome,email,password) VALUES (?,?,?,?)'
 
-    connection = sqlite3.connect('db/mangiato.db')
+def crea_utente(nuovo_utente):
+    query = 'INSERT INTO utenti(username,imgProfilo,password) VALUES (?,?,?)'
+
+    connection = sqlite3.connect('db/social.db')
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
 
     success = False
 
     try:
-        cursor.execute(query, (nuovo_utente['nome'],nuovo_utente['cognome'],nuovo_utente['email'], nuovo_utente['password']))
+        cursor.execute(query, (nuovo_utente['username'],nuovo_utente['imgProfilo'], nuovo_utente['password']))
         connection.commit()
         success = True
     except Exception as e:
@@ -146,5 +146,5 @@ def creare_utente(nuovo_utente):
     connection.close()
 
     return success
-"""
+
 

@@ -21,6 +21,14 @@ def index():
 def chi_siamo():
    return render_template('chi_siamo.html')
 
+@app.route('/Page_login')
+def Page_login():
+   return render_template('login.html')
+
+@app.route('/sign_up')
+def sign_up():
+   return render_template('signup.html')
+
 @app.route('/post/<int:id>')
 def post(id):
    singlePost=posts_dao.get_post(id)
@@ -72,6 +80,7 @@ def new_post():
    return redirect(url_for("index"))
 
 @app.route('/newComment/<int:id>', methods=['POST'])
+@login_required
 def new_comment(id):
    try:
       commento=request.form.to_dict()
@@ -108,60 +117,73 @@ def new_comment(id):
 
    return redirect(url_for("post", id=id))
 
-"""
-@app.route('/iscriviti')
-def iscriviti():
-    return render_template('signup.html')
-
 @app.route('/signup', methods=['POST'])
 def signup():
+  try:
+      new_user_from_form = request.form.to_dict()
 
-  new_user_from_form = request.form.to_dict()
+      #print(new_user_from_form)
 
-  print(new_user_from_form)
+      if new_user_from_form ['username'] == '':
+         raise Exception
 
-  if new_user_from_form ['nome'] == '':
-    app.logger.error('Il campo non può essere vuoto')
-    return redirect(url_for('index'))
+      if new_user_from_form ['password'] == '':
+          raise Exception
+      
+      foto = request.files['imgProfilo']
+      if foto:
+         foto.save('static/img/'+ foto.filename)
+         new_user_from_form['imgProfilo'] = 'img/'+foto.filename
+      else:
+         new_user_from_form['imgProfilo'] ='img/icon.jpg'
 
-  if new_user_from_form ['cognome'] == '':
-    app.logger.error('Il campo non può essere vuoto')
-    return redirect(url_for('index'))
 
-  if new_user_from_form ['email'] == '':
-    app.logger.error('Il campo non può essere vuoto')
-    return redirect(url_for('index'))
+      new_user_from_form ['password'] = generate_password_hash(new_user_from_form ['password'])
 
-  if new_user_from_form ['password'] == '':
-    app.logger.error('Il campo non può essere vuoto')
-    return redirect(url_for('index'))
+      success = posts_dao.crea_utente(new_user_from_form)
+
+      if success:
+         return redirect(url_for('Page_login'))
+      else:
+          raise Exception
+     
+  except Exception:
+   flash('Errore nella registrazione: riprova!', 'danger')
   
-  new_user_from_form ['password'] = generate_password_hash(new_user_from_form ['password'])
 
-  success = utenti_dao.creare_utente(new_user_from_form)
+  return redirect(url_for('sign_up'))
 
-  if success:
-    return redirect(url_for('index'))
 
-  return redirect(url_for('iscriviti'))
 
 @app.route('/login', methods=['POST'])
 def login():
+   try:
+      utente_form = request.form.to_dict()
 
-  utente_form = request.form.to_dict()
+      if utente_form['username']=='':
+         raise Exception
+      if utente_form['password']=='':
+         raise Exception
 
-  utente_db = utenti_dao.get_user_by_email(utente_form['email'])
+      utente_db = posts_dao.get_user(utente_form['username'])
+      print(utente_db['password'], utente_form['password'])
+      #print(utente_db['id'], utente_db['username'])
+      if not utente_db:
+         #flash("Non esiste l'utente", 'danger')
+         #return redirect(url_for('index'))
+         raise Exception
+      result= check_password_hash(str(utente_db['password']), utente_form['password'])
+      if result:
+         new = User(id=utente_db['id'], username=utente_db['username'], password=utente_db['password'] )
+         login_user(new, True)
+         flash('Success!', 'success')
+         return redirect(url_for('index'))
+      else:
+         raise Exception
+   except Exception:
+      flash('Errore nel login: riprova!', 'danger')
+      return redirect(url_for('Page_login'))
 
-  if not utente_db or not check_password_hash(utente_db['password'], utente_form['password']):
-    flash("Non esiste l'utente")
-    return redirect(url_for('index'))
-  else:
-    new = User(id=utente_db['id'], nome=utente_db['nome'], cognome=utente_db['cognome'], email=utente_db['email'], password=utente_db['password'] )
-    login_user(new, True)
-    flash('Success!')
-
-    return redirect(url_for('index'))
-"""
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -171,10 +193,8 @@ def load_user(user_id):
                 password=db_user['password'])
     return user
 
-"""
 @app.route("/logout")
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('index'))
-"""
