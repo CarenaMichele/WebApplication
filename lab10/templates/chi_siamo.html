@@ -8,6 +8,15 @@
   <li class="nav-item">
     <a class="nav-link active" href="#">Chi siamo</a>
   </li>
+  {% if current_user.is_authenticated %}
+  <li class="nav-item">
+    <a class="nav-link" href="{{url_for('logout')}}">Logout</a>
+  </li>
+  {% else %}
+  <li class="nav-item">
+    <a class="nav-link" href="{{url_for('Page_login')}}">Login</a>
+  </li>
+  {%endif%}
 {% endblock %}
 {% block content %}
   <div id="divContainerChiSiamo">

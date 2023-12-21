@@ -8,11 +8,17 @@
   <li class="nav-item">
     <a class="nav-link" href="{{url_for('chi_siamo')}}">Chi siamo</a>
   </li>
+  {% if current_user.is_authenticated %}
+  <li class="nav-item">
+    <a class="nav-link" href="{{url_for('logout')}}">Logout</a>
+  </li>
+  {% else %}
   <li class="nav-item">
     <a class="nav-link" href="{{url_for('Page_login')}}">Login</a>
   </li>
+  {%endif%}
 {% endblock %}
-{% block content %}      
+{% block content %} 
     <div class="container-fluid mt-5">
     {% for foto in post %}
         <div class="row">
@@ -28,7 +34,13 @@
                 <div class="col-lg-3"></div>
             {% endif %}
             <div class="col-lg-1"></div>
-            <div class="col-lg-8 border mb-3">
+            {% if current_user.is_authenticated %}
+                {% if foto.utente_id == current_user.id %}
+                <div class="col-lg-8 border mb-3 sfondoPost">
+                {%else%}
+                <div class="col-lg-8 border mb-3">
+                {% endif %}
+            {% endif %}
                 <div class="row">
                     <div class="col-lg-4 col-md-6 col-sm-12 col-12">
                         <a href="{{url_for('post', id=foto.post_id)}}"><img src="{{url_for('static', filename=foto.imgPost)}}" class="img-fluid immPost p-2"></a>
@@ -49,7 +61,9 @@
         </div>
     {% endfor %}
     </div>
-    <button type="button" class="btn btn-success btn-circle" data-bs-toggle="modal" data-bs-target="#Modal">+</button>
+    {% if current_user.is_authenticated %}
+        <button type="button" class="btn btn-success btn-circle" data-bs-toggle="modal" data-bs-target="#Modal">+</button>
+    {% endif %}
     <form action="/newPost" method="POST" enctype="multipart/form-data">
         <div class="modal fade" id="Modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">

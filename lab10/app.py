@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from datetime import date
 import posts_dao, os
 from flask_login import LoginManager, login_user, login_required, logout_user
+from flask_session import Session
 from models import User
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -139,6 +140,7 @@ def signup():
 
 
       new_user_from_form ['password'] = generate_password_hash(new_user_from_form ['password'])
+      app.logger.info(new_user_from_form['password'])
 
       success = posts_dao.crea_utente(new_user_from_form)
 
@@ -159,27 +161,25 @@ def signup():
 def login():
    try:
       utente_form = request.form.to_dict()
+      app.logger.info(utente_form)
 
-      if utente_form['username']=='':
+      if utente_form['username']=='' or utente_form['password']=='':
+         #print("hei")
          raise Exception
-      if utente_form['password']=='':
-         raise Exception
-
-      utente_db = posts_dao.get_user(utente_form['username'])
-      print(utente_db['password'], utente_form['password'])
-      #print(utente_db['id'], utente_db['username'])
-      if not utente_db:
-         #flash("Non esiste l'utente", 'danger')
-         #return redirect(url_for('index'))
-         raise Exception
-      result= check_password_hash(str(utente_db['password']), utente_form['password'])
-      if result:
-         new = User(id=utente_db['id'], username=utente_db['username'], password=utente_db['password'] )
-         login_user(new, True)
-         flash('Success!', 'success')
+      utente_db = posts_dao.get_user_by_username(utente_form['username'])
+      #app.logger.info(utente_db.utente_id,utente_db.username)
+      if utente_db and check_password_hash(utente_db['password'], utente_form['password']):
+         new = User(id=utente_db['utente_id'],
+                    username=utente_db['username'], 
+                    password=utente_db['password'])
+         login_user(new, True) #funzione che usa loginManager per autenticare l'utente
+         flash('Benvenuto '+utente_db['username']+'!', 'success')
          return redirect(url_for('index'))
       else:
+         #return redirect(url_for('index'))
+         print("errore")
          raise Exception
+         
    except Exception:
       flash('Errore nel login: riprova!', 'danger')
       return redirect(url_for('Page_login'))
@@ -187,7 +187,8 @@ def login():
 
 @login_manager.user_loader
 def load_user(user_id):
-    db_user=posts_dao.get_user(user_id)
+    db_user=posts_dao.get_user_by_id(user_id)
+    #print(db_user)
     user = User(id=db_user['utente_id'],	
                 username=db_user['username'],		
                 password=db_user['password'])

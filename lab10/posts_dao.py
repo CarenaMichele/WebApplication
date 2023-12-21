@@ -20,7 +20,7 @@ def get_posts():
     # noi però vogliamo a riga (sovrainsieme di un dizionario)
     cursor= conn.cursor()
 
-    sql = 'SELECT post_id, data, testo, imgPost, imgProfilo, username FROM posts, utenti where posts.utente_id = utenti.utente_id ORDER BY data DESC'
+    sql = 'SELECT post_id, data, testo, imgPost, imgProfilo, username, posts.utente_id FROM posts, utenti where posts.utente_id = utenti.utente_id ORDER BY data DESC'
     cursor.execute(sql)
     posts= cursor.fetchall()
     #print(posts)
@@ -111,7 +111,7 @@ def add_comment(commento):
 
     return success
 
-def get_user(username):
+def get_user_by_username(username):
     conn =sqlite3.connect('db/social.db')
     conn.row_factory = sqlite3.Row 
     cursor= conn.cursor()
@@ -120,10 +120,28 @@ def get_user(username):
     cursor.execute(sql, (username, ))
     user= cursor.fetchone()
 
+    #print(user)
+
     cursor.close()
     conn.close()
 
     return user
+
+def get_user_by_id(id_utente):
+    query = 'SELECT * FROM utenti WHERE utente_id = ?'
+
+    connection = sqlite3.connect('db/social.db')
+    connection.row_factory = sqlite3.Row
+    cursor = connection.cursor()
+
+    cursor.execute(query, (id_utente,))
+
+    result = cursor.fetchone()
+    
+    cursor.close()
+    connection.close()
+
+    return result
 
 def crea_utente(nuovo_utente):
     query = 'INSERT INTO utenti(username,imgProfilo,password) VALUES (?,?,?)'
