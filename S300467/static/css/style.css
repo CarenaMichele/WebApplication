@@ -1,0 +1,14 @@
+.nav-item {
+    line-height:80px;
+}
+
+.login,
+.image {
+  min-height: 100vh;
+}
+
+.bg-image {
+  background-image: url('https://bootstrapious.com/i/snippets/sn-page-split/bg.jpg');
+  background-size: cover;
+  background-position: center center;
+}

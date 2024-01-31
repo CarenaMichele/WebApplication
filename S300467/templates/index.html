@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Homepage{% endblock %}
+
+{% block liNav %}
+<li class="nav-item">
+    <a class="nav-link mx-2 active" aria-current="page" href="#">Home</a>
+  </li>
+  <li class="nav-item d-none d-lg-block">
+    <a class="nav-link mx-2" href="#">
+      <img src="/static_files/images/logos/logo_2_white.png" height="80" />
+    </a>
+  </li>
+  {% if current_user.tipo == 'locatore' %}
+  <li class="nav-item">
+    <a class="nav-link mx-2" href="{{url_for('profiloL')}}">Profilo</a>
+  </li>
+  {% elif current_user.tipo == 'cliente' %}
+  <li class="nav-item">
+    <a class="nav-link mx-2" href="{{url_for('profiloC')}}">Profilo</a>
+  </li>
+  {% endif %}
+  {% if current_user.is_authenticated %}
+  <li class="nav-item">
+    <a class="nav-link mx-2" href="{{url_for('logout')}}">Logout</a>
+  </li>
+  {% else %}
+  <li class="nav-item">
+    <a class="nav-link mx-2" href="{{url_for('Page_login')}}">Login</a>
+  </li>
+</li>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+      <div class="card mb-4">
+
+        <!-- Card image -->
+        <div class="view overlay">
+          <img class="card-img-top" src="https://mdbootstrap.com/img/Photos/Others/images/49.webp"
+            alt="Card image cap">
+          <a href="#!">
+            <div class="mask rgba-white-slight"></div>
+          </a>
+        </div>
+    
+        <!-- Card content -->
+        <div class="card-body">
+          <h4 class="card-title">Card title</h4>
+          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
+            content.</p>
+          <!-- Provides extra visual weight and identifies the primary action in a set of buttons -->
+          <button type="button" class="btn btn-primary btn-md">Read more</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+{% endblock %}
