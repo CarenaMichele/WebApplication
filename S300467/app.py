@@ -26,7 +26,9 @@ def sign_up():
 
 @app.route('/profiloL')
 def profiloL():
-   return render_template('profiloL.html')
+   annunci=posts_dao.get_annunci(current_user.id) #a volte non funziona
+   app.logger.info(annunci)
+   return render_template('profiloL.html', annunci=annunci)
 
 @app.route('/profiloC')
 def profiloC():
@@ -131,20 +133,21 @@ def new_ann():
       #app.logger.info(annuncio['idLocatore'])
 
       foto=request.files.getlist('imgAnnuncio') #getlist serve per ottenere una lista di file 
-      app.logger.info(foto)
+      #app.logger.info(foto)
+      file_paths=[] #vettore per inserire tutte le foto di quell'annuncio e passarle al db
       for file in foto:
-       file.save('static/img/'+file.filename)
+          file.save('static/img/'+file.filename)
+          fileP='img/'+file.filename
+          file_paths.append(fileP)
+      
+      #app.logger.info(file_paths)
+          
+       # dalla funzione add_ann faccio ritornare l'id dell'annuncio
+       #appena inserito per usarlo nella tabella foto come chiave esterna
+      sol= posts_dao.add_ann(annuncio)
 
-       # inserire immagini dell'annuncio nella tabella FOTO
-
-      '''foto =request.files['imgAnnuncio']
-      if foto:
-         foto.save('static/img/imgAnnunci/'+ foto.filename)
-         annuncio['imgAnnuncio'] = 'img/imgCommenti/'+foto.filename
-      else:
-         annuncio['imgAnnuncio'] ='img/icon.jpg'
-      '''
-      success= posts_dao.add_ann(annuncio)
+      app.logger.info(sol['idAnnuncio'])
+      success=posts_dao.add_foto(file_paths, sol['idAnnuncio'])
 
       if success:
          flash('Annuncio creato correttamente!', 'success')
@@ -155,6 +158,8 @@ def new_ann():
       flash("Errore nella creazione dell'annuncio: riprova!", 'danger')
 
    return redirect(url_for('profiloL'))
+
+
 
 
 

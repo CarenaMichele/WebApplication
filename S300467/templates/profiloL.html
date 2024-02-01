@@ -102,33 +102,32 @@
   {% endif %}
   <br>
   <div class="row">
-      <h4>Commenti</h4>
+      <h4>I tuoi Annunci</h4>
   </div>
   <div style="background-color: #e7effd;">
-      <div class="container my-5 py-5 text-dark">
-          <!--{% for comment in comments %}-->
-          <div class="row d-flex justify-content-center">
-              <div class="col-md-11 col-lg-9 col-xl-7">
-              <div class="d-flex flex-start mb-4">
-                  <img class="rounded-circle shadow-1-strong me-3"
-                  src="" alt="avatar" width="65"
-                  height="65" />
-                  <div class="card w-100">
-                  <div class="card-body p-4">
-                      <div>
-                      <!--<h5>{{comment.username}}</h5>
-                      {%for val in range(0, comment.rating | int )%} 
-                          <label for="{{val}}">☆</label>
-                      {%endfor%}
-                      <p>{{comment.commento}}</p>-->
-                      </div>
-                  </div>
-                  </div>
-              </div>
-              </div>
-          </div>
-          <!--{%endfor%}-->
-      </div>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Titolo</th>
+          <th scope="col">Indirizzo</th>
+          <th scope="col">Tipologia</th>
+          <th scope="col">Prezzo Mensile</th>
+          <th scope="col">Disponibilità</th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for annuncio in annunci %}
+        <tr>
+          <th scope="row">{{annuncio.titolo}}</th>
+          <td>{{annuncio.indirizzo}}</td>
+          <td>{{annuncio.tipoCasa}}</td>
+          <td>{{annuncio.prezzoMensile}}</td>
+          <td>{{annuncio.disponibilita}}</td>
+          <td><button type="button" class="btn btn-danger">MODIFICA</button></td>
+        </tr>
+        {% endfor %}
+      </tbody>
   </div>
 </div>
 {% endblock %}
