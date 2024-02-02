@@ -104,12 +104,34 @@ def get_annunci(id):
     conn.row_factory = sqlite3.Row 
     cursor= conn.cursor()
 
-    sql = 'SELECT titolo, indirizzo, tipoCasa, numeroLocali, descrizione, prezzoMensile, arredamento, disponibilita, urlFoto FROM ANNUNCI, FOTO where ANNUNCI.idUtente = ? and ANNUNCI.idAnnuncio = FOTO.idAnnuncio'
+    sql = 'SELECT  ANNUNCI.idAnnuncio, titolo, indirizzo, tipoCasa, numeroLocali, descrizione, \
+    prezzoMensile, arredamento, disponibilita, urlFoto FROM ANNUNCI, FOTO \
+    where ANNUNCI.idUtente = ? and ANNUNCI.idAnnuncio = FOTO.idAnnuncio \
+    GROUP BY ANNUNCI.idAnnuncio'
+    #uso del group by per raggruppare le informazioni identiche (foto) relative allo stesso idAnnuncio
     cursor.execute(sql, (id,))
     annunci= cursor.fetchall()
-    print(annunci)
+    #print(annunci)
 
     cursor.close()
     conn.close()
 
     return annunci
+
+def get_singleAnnuncio(id):
+    conn =sqlite3.connect('db/affitti.db')
+    conn.row_factory = sqlite3.Row 
+    cursor= conn.cursor()
+    #utilizzo di GROUP_CONCAT per concatenare su un'unica riga tutte le foto di quell'annuncio
+    sql = '''SELECT ANNUNCI.* ,GROUP_CONCAT(urlFoto, ',') AS foto_concatenate 
+           FROM ANNUNCI, FOTO 
+           where ANNUNCI.idAnnuncio = ? and ANNUNCI.idAnnuncio = FOTO.idAnnuncio 
+           GROUP BY ANNUNCI.idAnnuncio'''
+    cursor.execute(sql, (id,))
+    annuncio= cursor.fetchone()  #vedere se meglio fetchone o fetchall
+    #print(annunci)
+
+    cursor.close()
+    conn.close()
+
+    return annuncio

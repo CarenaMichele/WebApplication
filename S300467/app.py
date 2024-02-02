@@ -1,16 +1,18 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
-#from datetime import date
 import posts_dao, os
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 #from flask_session import Session
 from models import User
 from werkzeug.security import generate_password_hash, check_password_hash
+#from datetime import timedelta
 
 app= Flask(__name__) #qualunque sia il nome dell'app viene rimpiazzato in tempo di esecuzione
 app.config['SECRET_KEY']=os.urandom(24)
 
 login_manager=LoginManager()
 login_manager.init_app(app)
+
+#app.config['PERMANENT_SESSION_LIFETIME']=timedelta(days=365)
 
 @app.route('/')  #quando il server riceve una richiesta get in questo caso, allora deve eseguire il contenuto della funzione
 def index():
@@ -25,10 +27,18 @@ def sign_up():
    return render_template('signup.html')
 
 @app.route('/profiloL')
-def profiloL():
-   annunci=posts_dao.get_annunci(current_user.id) #a volte non funziona
-   app.logger.info(annunci)
-   return render_template('profiloL.html', annunci=annunci)
+@app.route('/profiloL/<int:id>')
+@login_required
+def profiloL(id=None): #annuncio=None significa che il parametro è opzionale. 
+   #Se il parametro non viene fornito nell'URL, annuncio sarà impostata a None di default
+   if id is not None:
+      annunci=posts_dao.get_annunci(current_user.id)
+      annuncio=posts_dao.get_singleAnnuncio(id)
+      app.logger.info(annuncio)
+      return render_template('profiloL.html', annunci=annunci, annuncio=annuncio)
+   else:
+      annunci=posts_dao.get_annunci(current_user.id)
+      return render_template('profiloL.html', annunci=annunci)
 
 @app.route('/profiloC')
 def profiloC():
@@ -142,8 +152,8 @@ def new_ann():
       
       #app.logger.info(file_paths)
           
-       # dalla funzione add_ann faccio ritornare l'id dell'annuncio
-       #appena inserito per usarlo nella tabella foto come chiave esterna
+      # dalla funzione add_ann faccio ritornare l'id dell'annuncio
+      #appena inserito per usarlo nella tabella foto come chiave esterna
       sol= posts_dao.add_ann(annuncio)
 
       app.logger.info(sol['idAnnuncio'])
@@ -158,6 +168,16 @@ def new_ann():
       flash("Errore nella creazione dell'annuncio: riprova!", 'danger')
 
    return redirect(url_for('profiloL'))
+
+
+@app.route('/modificaAnn/<int:id>', methods=['POST']) #passo come parametro id per capire qual è la riga del db da modificare
+@login_required
+def mod_ann(id):
+   #something
+   #annuncio=posts_dao.get_singleAnnuncio(id)
+   #app.logger.info(annuncio)
+   return redirect(url_for('profiloL', id=id))
+
 
 
 
