@@ -12,3 +12,18 @@
   background-size: cover;
   background-position: center center;
 }
+
+.fotoAnnunci{
+  width: 150px;
+  height: 150px;
+}
+
+.foto-container{
+  display: inline-block;
+}
+
+.foto-container button{
+  display: block;
+  margin:auto;
+  margin-top: 5px;
+}

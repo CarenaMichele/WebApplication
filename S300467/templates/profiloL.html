@@ -94,10 +94,21 @@
             Questo è fatto per evitare che un sito web imponga automaticamente l'upload di file senza il consenso dell'utente. -->
           <div class="form-group">
               <label for="imgCommento" class="form-label">Aggiungi da 1 a 5 fotografie dell'appartamento</label>
-              <input class="form-control" type="file" name="imgAnnuncio" multiple required>
-              <label>{{annuncio.foto_concatenate}}</label> <!--per la sicurezza ho inserito semplicemente una label con l'elenco
+              <input class="form-control" type="file" name="imgAnnuncio" multiple>
+              <!--<label>{{annuncio.foto_concatenate}}</label>--><!--per la sicurezza ho inserito semplicemente una label con l'elenco
               delle immagini inserite in precedenza-->
               <!--Quindi il locatore sarà obbligato a reinserire le foto-->
+              <br>
+              {% set foto_list = annuncio.foto_concatenate.split(',') %}
+              {% for foto in foto_list %}
+                <div class="foto-container">
+                  <form action="/rimuoviFoto/{{annuncio.idAnnuncio}}" method="POST" enctype="multipart/form-data">
+                    <img src="{{ url_for('static', filename=foto) }}" alt="Foto" class="fotoAnnunci">
+                    <input type="hidden" name="image_url" value="{{foto}}">
+                    <button type="submit" class="btn btn-danger">Rimuovi</button>
+                  </form>
+                </div>
+              {% endfor %}
           </div>
           <br>
           <div class="form-group mb-3">

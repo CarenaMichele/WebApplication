@@ -140,7 +140,7 @@ def mod_ann(annuncio, id):
     conn =sqlite3.connect('db/affitti.db')
     conn.row_factory = sqlite3.Row 
     cursor= conn.cursor()
-    success= False
+    success=False
     sql ='UPDATE ANNUNCI SET titolo=?, tipoCasa=?, numeroLocali=?, descrizione=?, prezzoMensile=?, arredamento=?, disponibilita=? WHERE idAnnuncio= ? '
     try:
         cursor.execute(sql, (annuncio['titolo'], annuncio['tipoC'], annuncio['numLocali'], annuncio['descrizione'], annuncio['prezzoM'], annuncio['arredato'], annuncio['disponibile'], id[0]))
@@ -154,6 +154,33 @@ def mod_ann(annuncio, id):
     conn.close()
 
     return success
+
+'''def mod_foto(foto, id):
+    conn=sqlite3.connect('db/affitti.db')
+    conn.row_factory=sqlite3.Row
+    cursor=conn.cursor()
+    success=False
+    #vado a prendere tutte le foto presenti nel db di quel annuncio
+    try:
+        sql='SELECT urlFoto FROM FOTO WHERE idAnnuncio=?'
+        cursor.execute(sql, (id,))
+        listaFoto= cursor.fetchall()
+        #print(listaFoto)
+        success=True
+
+        #for i in listaFoto:
+         #   print(listaFoto[i])
+
+        
+    except sqlite3.Error as e:
+        print("errore:", e)
+        conn.rollback()
+
+    cursor.close()
+    conn.close()
+    return success'''
+
+    
 
 def get_id(annuncio):
     conn =sqlite3.connect('db/affitti.db')
@@ -169,3 +196,42 @@ def get_id(annuncio):
     conn.close()
 
     return sol
+
+def remove_foto(foto,id):
+    conn =sqlite3.connect('db/affitti.db')
+    conn.row_factory = sqlite3.Row 
+    cursor= conn.cursor()
+    success=False
+    sql ='DELETE FROM FOTO WHERE urlFoto= ? AND idAnnuncio=? '
+    try:
+        cursor.execute(sql, (foto,id))
+        conn.commit()
+        success=True
+    except Exception as e:
+        print("ERROR",str(e))
+        conn.rollback()
+    
+    cursor.close()
+    conn.close()
+
+    return success
+
+
+def get_allAnnunci():
+    conn =sqlite3.connect('db/affitti.db')
+    conn.row_factory = sqlite3.Row 
+    cursor= conn.cursor()
+
+    sql = 'SELECT  ANNUNCI.idAnnuncio, titolo, indirizzo, tipoCasa, numeroLocali, descrizione, \
+    prezzoMensile, arredamento, disponibilita, urlFoto FROM ANNUNCI, FOTO \
+    where ANNUNCI.idAnnuncio = FOTO.idAnnuncio \
+    GROUP BY ANNUNCI.idAnnuncio'
+    #uso del group by per raggruppare le informazioni identiche (foto) relative allo stesso idAnnuncio
+    cursor.execute(sql, ())
+    annunci= cursor.fetchall()
+    #print(annunci)
+
+    cursor.close()
+    conn.close()
+
+    return annunci

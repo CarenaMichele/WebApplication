@@ -16,7 +16,8 @@ login_manager.init_app(app)
 
 @app.route('/')  #quando il server riceve una richiesta get in questo caso, allora deve eseguire il contenuto della funzione
 def index():
-   return render_template('index.html')
+   allAnnunci=posts_dao.get_allAnnunci()
+   return render_template('index.html', allAnnunci=allAnnunci)
 
 @app.route('/Page_login')
 def Page_login():
@@ -122,7 +123,7 @@ def Ann(par):
      
       annuncio=request.form.to_dict()
       #app.logger.info(annuncio['indirizzo'])
-      app.logger.info(annuncio)
+      #app.logger.info(annuncio)
       if annuncio['titolo']=='':
          raise Exception
       if annuncio['indirizzo']=='':
@@ -135,31 +136,39 @@ def Ann(par):
          raise Exception
       if annuncio["prezzoM"]=='':
          raise Exception
-      if 'arredato' in annuncio:
-         app.logger.info('è arredato? '+ annuncio['arredato'])
-      if 'disponibile' in annuncio:
-         app.logger.info('è disponibile? '+ annuncio['disponibile'])
+      #if 'arredato' in annuncio:
+         #app.logger.info('è arredato? '+ annuncio['arredato'])
+      #if 'disponibile' in annuncio:
+         #app.logger.info('è disponibile? '+ annuncio['disponibile'])
 
       annuncio['idLocatore']=current_user.id #uso di current_user per passare idLocatore nel db
       foto=request.files.getlist('imgAnnuncio') #getlist serve per ottenere una lista di file 
-      file_paths=[] #vettore per inserire tutte le foto di quell'annuncio e passarle al db
-      for file in foto:
-          file.save('static/img/'+file.filename)
-          fileP='img/'+file.filename
-          file_paths.append(fileP)
+      #massimo 5 foto posso aggiungere
+      
       
       if par == 'new':
-         app.logger.info(par)
+         #forse è meglio usarlo sia per la creazione che per la modifica
+         if len(foto)>5:
+         #flash("Impossibile inserire più di 5 foto: riprova!", 'danger')
+             raise Exception
+         else:
+            file_paths=[] #vettore per inserire tutte le foto di quell'annuncio e passarle al db
+            for file in foto:
+               file.save('static/img/'+file.filename)
+               fileP='img/'+file.filename
+               file_paths.append(fileP)
+         #app.logger.info(par)
          sol= posts_dao.add_ann(annuncio)
          # dalla funzione add_ann faccio ritornare l'id dell'annuncio
          #appena inserito per usarlo nella tabella foto come chiave esterna
          success=posts_dao.add_foto(file_paths, sol['idAnnuncio'])
       else:
-         #app.logger.info(par)
+         app.logger.info(par)
          id=posts_dao.get_id(annuncio)
-         app.logger.info(id[0])
+         #app.logger.info(id[0])
          success=posts_dao.mod_ann(annuncio,id)
-         app.logger.info(success)
+         #DA GESTIRE MODIFICA DELLE FOTO
+         #success=posts_dao.mod_foto(file_paths,id[0])
 
       if success and par=='new':
          flash('Annuncio creato correttamente!', 'success')
@@ -183,7 +192,18 @@ def mod_ann(id):
    return redirect(url_for('profiloL', id=id))
 
 
+@app.route('/rimuoviFoto/<int:id>', methods=['POST'])
+@login_required
+def rimuovi_foto(id):
+   foto=request.form['image_url']
+   app.logger.info(foto)
+   success=posts_dao.remove_foto(foto,id)
 
+   if success:
+      flash('Foto rimossa correttamente!', 'success')
+   else:
+      flash('Errore nella rimozione della foto','danger')
+   return redirect(url_for('profiloL', id=id))
 
 
 

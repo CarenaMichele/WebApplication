@@ -34,11 +34,12 @@
 {% block content %}
 <div class="container-fluid">
     <div class="row">
+      {% for annuncio in allAnnunci %}
       <div class="card mb-4">
 
         <!-- Card image -->
         <div class="view overlay">
-          <img class="card-img-top" src="https://mdbootstrap.com/img/Photos/Others/images/49.webp"
+          <img class="card-img-top" src=""
             alt="Card image cap">
           <a href="#!">
             <div class="mask rgba-white-slight"></div>
@@ -47,13 +48,14 @@
     
         <!-- Card content -->
         <div class="card-body">
-          <h4 class="card-title">Card title</h4>
+          <h4 class="card-title">{{annuncio.titolo}}</h4>
           <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
             content.</p>
           <!-- Provides extra visual weight and identifies the primary action in a set of buttons -->
           <button type="button" class="btn btn-primary btn-md">Read more</button>
         </div>
       </div>
+      {% endfor %}
     </div>
   </div>
 
