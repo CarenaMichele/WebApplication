@@ -70,9 +70,9 @@ def add_ann(annuncio):
     
     cursor.close()
 
-    sql2 = 'SELECT idAnnuncio FROM ANNUNCI where titolo=?'
+    sql2 = 'SELECT idAnnuncio FROM ANNUNCI where titolo=? and idUtente=?'
 
-    cursor2.execute(sql2, (annuncio['titolo'], ))
+    cursor2.execute(sql2, (annuncio['titolo'], annuncio['idLocatore']))
     sol= cursor2.fetchone()
 
     cursor2.close()
@@ -135,3 +135,37 @@ def get_singleAnnuncio(id):
     conn.close()
 
     return annuncio
+
+def mod_ann(annuncio, id):
+    conn =sqlite3.connect('db/affitti.db')
+    conn.row_factory = sqlite3.Row 
+    cursor= conn.cursor()
+    success= False
+    sql ='UPDATE ANNUNCI SET titolo=?, tipoCasa=?, numeroLocali=?, descrizione=?, prezzoMensile=?, arredamento=?, disponibilita=? WHERE idAnnuncio= ? '
+    try:
+        cursor.execute(sql, (annuncio['titolo'], annuncio['tipoC'], annuncio['numLocali'], annuncio['descrizione'], annuncio['prezzoM'], annuncio['arredato'], annuncio['disponibile'], id[0]))
+        conn.commit()
+        success=True
+    except Exception as e:
+        print("ERROR",str(e))
+        conn.rollback()
+    
+    cursor.close()
+    conn.close()
+
+    return success
+
+def get_id(annuncio):
+    conn =sqlite3.connect('db/affitti.db')
+    conn.row_factory = sqlite3.Row 
+    cursor= conn.cursor()
+
+    sql = 'SELECT idAnnuncio FROM ANNUNCI where indirizzo=? and idUtente=?'
+
+    cursor.execute(sql, (annuncio['indirizzo'], annuncio['idLocatore']))
+    sol= cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    return sol

@@ -27,8 +27,10 @@
 {% block content %}
 <div class="container-fluid mt-5">
   {% if current_user.is_authenticated %}
-        {% if annuncio %}
-        <form action="/newAnn" method="POST" enctype="multipart/form-data">
+        {% if annuncio %} 
+        <!--usato per modifica dell'annuncio. Se vero ==> form di modifica
+        Se falso ==> form di aggiunta-->
+        <form action="/Ann/mod" method="POST" enctype="multipart/form-data">
           <div class="form-group">
               <h4>Modifica un Annuncio!</h4>
               <label for="titolo">Titolo</label>
@@ -36,71 +38,98 @@
           </div>
           <div class="form-group">
             <label for="indirizzo">Indirizzo</label>
-            <input type="text" name="indirizzo" class="form-control" value="{{annuncio.indirizzo}}" disabled>
+            <input type="text" name="indirizzo" class="form-control" value="{{annuncio.indirizzo}}" required>
           </div>
           <div class="form-group">
             <label for="tipoC">Tipo Casa</label>
             <select class="form-control" name="tipoC" required>
               <option name="tipoC"></option>
-              <option name="tipoC">casa indipendente</option>
-              <option name="tipoC">appartamento</option>
-              <option name="tipoC">loft</option>
-              <option name="tipoC">villa</option>
+              {% set case = ['casa indipendente', 'appartamento', 'loft', 'villa'] %}  <!--array contenente tutte i tipi di case possibili-->
+              {% for casa in case %}
+                  <option name="tipoC" {% if annuncio.tipoCasa == casa %}selected{% endif %}>{{ casa }}</option>
+              {% endfor %}
             </select>
           </div>
           <div class="form-group">
             <label for="numLocali">Numero Locali</label>
             <select class="form-control" name="numLocali" required>
               <option name="numLocali"></option>
-              <option name="numLocali">1</option>
-              <option name="numLocali">2</option>
-              <option name="numLocali">3</option>
-              <option name="numLocali">4</option>
-              <option name="numLocali">5+</option>
+              {% set numeri = ['1','2','3','4','5+'] %}  <!--array contenente tutte i numeri dei locali possibili-->
+              {% for numero in numeri %}
+                  <option name="numLocali" {% if annuncio.numeroLocali == numero %}selected{% endif %}>{{ numero }}</option>
+              {% endfor %}
             </select>
           </div>
           <div class="form-group">
               <label for="descrizione">Descrizione</label>
-              <textarea name="descrizione" msg cols="30" rows="5" class="form-control" required></textarea>
+              <textarea name="descrizione" msg cols="30" rows="5" class="form-control" required>{{annuncio.descrizione}}</textarea>
           </div>
           <div class="form-group">
             <label for="prezzoM">Prezzo Mensile</label>
-            <input type="number" name="prezzoM" class="form-control" value="500" min="100" max="2500" step="50" required> <!--TODO-->
+            <input type="number" name="prezzoM" class="form-control" value="{{annuncio.prezzoMensile}}" min="100" max="2500" step="50" required> <!--TODO-->
           </div>
           <br>
           <div class="form-group mb-3">
             <label for="divArredato">Arredamento</label>
-            <div class="form-check form-check-inline" id="divArredato">
-                <input type="radio" class="form-check-input" id="rad1" name="arredato" value="Y" checked>SI                                        
+            {% if annuncio.arredamento == 'SI' %}
+              <div class="form-check form-check-inline" id="divArredato">
+                <input type="radio" class="form-check-input" id="rad1" name="arredato" value="SI" checked>SI                                        
                 <label class="form-check-label" for="rad1"></label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input type="radio" class="form-check-input" id="rad2" name="arredato" value="N">NO
+              </div>
+              <div class="form-check form-check-inline">
+                <input type="radio" class="form-check-input" id="rad2" name="arredato" value="NO">NO
                 <label class="form-check-label" for="rad2"></label>
-            </div>
-          </div>
+              </div>
+            {% else %}
+              <div class="form-check form-check-inline" id="divArredato">
+                <input type="radio" class="form-check-input" id="rad1" name="arredato" value="SI">SI                                        
+                <label class="form-check-label" for="rad1"></label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input type="radio" class="form-check-input" id="rad2" name="arredato" value="NO" checked>NO
+                <label class="form-check-label" for="rad2"></label>
+              </div>
+            {% endif %}
+          <!--problemi di sicurezza=> Gli input di tipo file non possono essere preimpostati per motivi di sicurezza del browser. 
+            Questo è fatto per evitare che un sito web imponga automaticamente l'upload di file senza il consenso dell'utente. -->
           <div class="form-group">
               <label for="imgCommento" class="form-label">Aggiungi da 1 a 5 fotografie dell'appartamento</label>
-              <input class="form-control" type="file" name="imgAnnuncio" multiple required> <!--attributo multiple utilizzato per selezionare più file in una volta sola-->
+              <input class="form-control" type="file" name="imgAnnuncio" multiple required>
+              <label>{{annuncio.foto_concatenate}}</label> <!--per la sicurezza ho inserito semplicemente una label con l'elenco
+              delle immagini inserite in precedenza-->
+              <!--Quindi il locatore sarà obbligato a reinserire le foto-->
           </div>
           <br>
           <div class="form-group mb-3">
             <label for="divDisponibile">Disponibile</label>
+            {% if annuncio.disponibilita == 'SI' %}
             <div class="form-check form-check-inline" id="divDisponibile">
-                <input type="radio" class="form-check-input" id="radD1" name="disponibile" value="Y" checked>SI                                        
-                <label class="form-check-label" for="radD1"></label>
+              <input type="radio" class="form-check-input" id="radD1" name="disponibile" value="SI" checked>SI                                        
+              <label class="form-check-label" for="radD1"></label>
             </div>
             <div class="form-check form-check-inline">
-                <input type="radio" class="form-check-input" id="radD2" name="disponibile" value="N">NO
-                <label class="form-check-label" for="radD2"></label>
+              <input type="radio" class="form-check-input" id="radD2" name="disponibile" value="NO">NO
+              <label class="form-check-label" for="radD2"></label>
             </div>
+            {% else %}
+            <div class="form-check form-check-inline" id="divDisponibile">
+              <input type="radio" class="form-check-input" id="radD1" name="disponibile" value="SI">SI                                        
+              <label class="form-check-label" for="radD1"></label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input type="radio" class="form-check-input" id="radD2" name="disponibile" value="NO" checked>NO
+              <label class="form-check-label" for="radD2"></label>
+            </div>  
+            {% endif %}
           </div>
           <div class="form-group">
-              <button type="submit" id="annuncio" class="btn btn-success">Aggiungi Annuncio</button>
-          </div>
+              <button type="submit" id="annuncio" class="btn btn-danger">Modifica Annuncio</button>
+              <a href="{{url_for('profiloL')}}" class="btn btn-outline-danger">Annulla Modifica</a>
+            </div>
         </form>
       {% else %}
-      <form action="/newAnn" method="POST" enctype="multipart/form-data">
+      <!--form per aggiungere annuncio-->
+      <form action="/Ann/new" method="POST" enctype="multipart/form-data">
           <div class="form-group">
               <h4>Aggiungi un Annuncio!</h4>
               <label for="titolo">Titolo</label>
@@ -143,11 +172,11 @@
           <div class="form-group mb-3">
             <label for="divArredato">Arredamento</label>
             <div class="form-check form-check-inline" id="divArredato">
-                <input type="radio" class="form-check-input" id="rad1" name="arredato" value="Y" checked>SI                                        
+                <input type="radio" class="form-check-input" id="rad1" name="arredato" value="SI" checked>SI                                        
                 <label class="form-check-label" for="rad1"></label>
             </div>
             <div class="form-check form-check-inline">
-                <input type="radio" class="form-check-input" id="rad2" name="arredato" value="N">NO
+                <input type="radio" class="form-check-input" id="rad2" name="arredato" value="NO">NO
                 <label class="form-check-label" for="rad2"></label>
             </div>
           </div>
@@ -159,11 +188,11 @@
           <div class="form-group mb-3">
             <label for="divDisponibile">Disponibile</label>
             <div class="form-check form-check-inline" id="divDisponibile">
-                <input type="radio" class="form-check-input" id="radD1" name="disponibile" value="Y" checked>SI                                        
+                <input type="radio" class="form-check-input" id="radD1" name="disponibile" value="SI" checked>SI                                        
                 <label class="form-check-label" for="radD1"></label>
             </div>
             <div class="form-check form-check-inline">
-                <input type="radio" class="form-check-input" id="radD2" name="disponibile" value="N">NO
+                <input type="radio" class="form-check-input" id="radD2" name="disponibile" value="NO">NO
                 <label class="form-check-label" for="radD2"></label>
             </div>
           </div>

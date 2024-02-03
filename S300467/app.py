@@ -34,7 +34,6 @@ def profiloL(id=None): #annuncio=None significa che il parametro è opzionale.
    if id is not None:
       annunci=posts_dao.get_annunci(current_user.id)
       annuncio=posts_dao.get_singleAnnuncio(id)
-      app.logger.info(annuncio)
       return render_template('profiloL.html', annunci=annunci, annuncio=annuncio)
    else:
       annunci=posts_dao.get_annunci(current_user.id)
@@ -116,11 +115,13 @@ def logout():
     return redirect(url_for('index'))
 
 
-@app.route('/newAnn', methods=['POST'])
+@app.route('/Ann/<par>', methods=['POST'])
 @login_required
-def new_ann():
+def Ann(par):
    try:
+     
       annuncio=request.form.to_dict()
+      #app.logger.info(annuncio['indirizzo'])
       app.logger.info(annuncio)
       if annuncio['titolo']=='':
          raise Exception
@@ -140,29 +141,32 @@ def new_ann():
          app.logger.info('è disponibile? '+ annuncio['disponibile'])
 
       annuncio['idLocatore']=current_user.id #uso di current_user per passare idLocatore nel db
-      #app.logger.info(annuncio['idLocatore'])
-
       foto=request.files.getlist('imgAnnuncio') #getlist serve per ottenere una lista di file 
-      #app.logger.info(foto)
       file_paths=[] #vettore per inserire tutte le foto di quell'annuncio e passarle al db
       for file in foto:
           file.save('static/img/'+file.filename)
           fileP='img/'+file.filename
           file_paths.append(fileP)
       
-      #app.logger.info(file_paths)
-          
-      # dalla funzione add_ann faccio ritornare l'id dell'annuncio
-      #appena inserito per usarlo nella tabella foto come chiave esterna
-      sol= posts_dao.add_ann(annuncio)
-
-      app.logger.info(sol['idAnnuncio'])
-      success=posts_dao.add_foto(file_paths, sol['idAnnuncio'])
-
-      if success:
-         flash('Annuncio creato correttamente!', 'success')
+      if par == 'new':
+         app.logger.info(par)
+         sol= posts_dao.add_ann(annuncio)
+         # dalla funzione add_ann faccio ritornare l'id dell'annuncio
+         #appena inserito per usarlo nella tabella foto come chiave esterna
+         success=posts_dao.add_foto(file_paths, sol['idAnnuncio'])
       else:
-         raise Exception
+         #app.logger.info(par)
+         id=posts_dao.get_id(annuncio)
+         app.logger.info(id[0])
+         success=posts_dao.mod_ann(annuncio,id)
+         app.logger.info(success)
+
+      if success and par=='new':
+         flash('Annuncio creato correttamente!', 'success')
+      elif success and par=='mod':
+         flash('Annuncio modificato correttamente!', 'success')
+      else:
+        raise Exception
                
    except Exception:
       flash("Errore nella creazione dell'annuncio: riprova!", 'danger')
