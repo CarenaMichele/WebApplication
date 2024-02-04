@@ -35,22 +35,19 @@ def sign_up():
    return render_template('signup.html')
 
    
-@app.route('/profiloL')
-@app.route('/profiloL/<int:id>')
+@app.route('/profilo')
+@app.route('/profilo/<int:id>')
 @login_required
-def profiloL(id=None): #annuncio=None significa che il parametro è opzionale. 
+def profilo(id=None): #annuncio=None significa che il parametro è opzionale. 
    #Se il parametro non viene fornito nell'URL, annuncio sarà impostata a None di default
    if id is not None:
       annunci=posts_dao.get_annunci(current_user.id)
       annuncio=posts_dao.get_singleAnnuncio(id)
-      return render_template('profiloL.html', annunci=annunci, annuncio=annuncio)
+      return render_template('profilo.html', annunci=annunci, annuncio=annuncio)
    else:
       annunci=posts_dao.get_annunci(current_user.id)
-      return render_template('profiloL.html', annunci=annunci)
+      return render_template('profilo.html', annunci=annunci)
 
-@app.route('/profiloC')
-def profiloC():
-   return render_template('profiloC.html')
 
 @app.route('/signup', methods=['POST'])
 def signup():
@@ -153,7 +150,6 @@ def Ann(par):
       foto=request.files.getlist('imgAnnuncio') #getlist serve per ottenere una lista di file 
       #massimo 5 foto posso aggiungere
       
-      
       if par == 'new':
          #forse è meglio usarlo sia per la creazione che per la modifica
          if len(foto)>5:
@@ -175,6 +171,7 @@ def Ann(par):
          id=posts_dao.get_id(annuncio)
          #app.logger.info(id[0])
          success=posts_dao.mod_ann(annuncio,id)
+
          #DA GESTIRE MODIFICA DELLE FOTO
          #success=posts_dao.mod_foto(file_paths,id[0])
 
@@ -188,7 +185,7 @@ def Ann(par):
    except Exception:
       flash("Errore nella creazione dell'annuncio: riprova!", 'danger')
 
-   return redirect(url_for('profiloL'))
+   return redirect(url_for('profilo'))
 
 
 @app.route('/modificaAnn/<int:id>', methods=['POST']) #passo come parametro id per capire qual è la riga del db da modificare
@@ -197,7 +194,7 @@ def mod_ann(id):
    #something
    #annuncio=posts_dao.get_singleAnnuncio(id)
    #app.logger.info(annuncio)
-   return redirect(url_for('profiloL', id=id))
+   return redirect(url_for('profilo', id=id))
 
 
 @app.route('/rimuoviFoto/<int:id>', methods=['POST'])
@@ -211,7 +208,7 @@ def rimuovi_foto(id):
       flash('Foto rimossa correttamente!', 'success')
    else:
       flash('Errore nella rimozione della foto','danger')
-   return redirect(url_for('profiloL', id=id))
+   return redirect(url_for('profilo', id=id))
 
 @app.route('/filtro', methods=['POST'])
 def filtro():

@@ -2,7 +2,7 @@
 {% block title %}Homepage{% endblock %}
 {% block liNav %}
 <li class="nav-item">
-    <a class="nav-link mx-2 active" aria-current="page" href="{{url_for('index')}}">Home</a>
+    <a class="nav-link mx-2" aria-current="page" href="{{url_for('index')}}">Home</a>
   </li>
   <li class="nav-item d-none d-lg-block">
     <a class="nav-link mx-2" href="#">
@@ -28,7 +28,7 @@
 <div class="container-fluid mt-5">
     {% if current_user.is_authenticated %}
         <form action="" method="POST" enctype="multipart/form-data">
-            <h4>Prenota una visita!</h4>
+            <h4 class="mb-4">Prenota una visita!</h4>
             <div class="form-group mb-3">
                 <label for="divDisponibile">Modalità visita:</label>
                 <div class="form-check form-check-inline" id="divDisponibile">
@@ -55,7 +55,8 @@
                 </select>
             </div>
             <div class="form-group mt-4">
-                <button type="submit" id="annuncio" class="btn btn-success">Aggiungi Annuncio</button>
+                <button type="submit" id="annuncio" class="btn btn-success">Aggiungi Prenotazione</button>
+                <a href="{{url_for('index')}}" class="btn btn-outline-success">Annulla Prenotazione</a>
             </div>
         </form>
     {% endif %}
