@@ -4,7 +4,7 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 #from flask_session import Session
 from models import User
 from werkzeug.security import generate_password_hash, check_password_hash
-#from datetime import timedelta
+from datetime import datetime, timedelta
 
 app= Flask(__name__) #qualunque sia il nome dell'app viene rimpiazzato in tempo di esecuzione
 app.config['SECRET_KEY']=os.urandom(24)
@@ -13,11 +13,18 @@ login_manager=LoginManager()
 login_manager.init_app(app)
 
 #app.config['PERMANENT_SESSION_LIFETIME']=timedelta(days=365)
-
+@app.route('/<info>')
 @app.route('/')  #quando il server riceve una richiesta get in questo caso, allora deve eseguire il contenuto della funzione
-def index():
-   allAnnunci=posts_dao.get_allAnnunci()
-   return render_template('index.html', allAnnunci=allAnnunci)
+def index(info=None):
+   if info is not None:
+      if info=='numLocali':
+         annunci=posts_dao.ordina(info)
+      else:
+         annunci=posts_dao.ordina(info)
+      return render_template('index.html', allAnnunci=annunci)
+   else:
+      allAnnunci=posts_dao.get_allAnnunci()
+      return render_template('index.html', allAnnunci=allAnnunci)
 
 @app.route('/Page_login')
 def Page_login():
@@ -27,6 +34,7 @@ def Page_login():
 def sign_up():
    return render_template('signup.html')
 
+   
 @app.route('/profiloL')
 @app.route('/profiloL/<int:id>')
 @login_required
@@ -205,7 +213,28 @@ def rimuovi_foto(id):
       flash('Errore nella rimozione della foto','danger')
    return redirect(url_for('profiloL', id=id))
 
+@app.route('/filtro', methods=['POST'])
+def filtro():
+    info=request.form.get('selFiltro')
+    #app.logger.info(info)
+    return redirect(url_for('index', info=info))
 
+
+@app.route('/prenotazione/<int:id>', methods=['POST'])
+@login_required
+def prenotazione(id):
+   oggi=datetime.now().date()
+   domani=oggi+timedelta(days=1)
+   setteGiorniDopo=oggi+timedelta(days=7)
+
+   #formatto le date nel formato richiesto dall'input date
+   #formato generale = YYYY-MM-DD
+   #isoformat = fornisce rappresentazione di una data in formato stringa
+   domaniForm = domani.isoformat() 
+   setteGiorniDopoForm = setteGiorniDopo.isoformat()
+   
+   #app.logger.info(giornoFormattato)
+   return render_template('prenotazione.html', id=id, domani=domaniForm, setteGiorniDopo=setteGiorniDopoForm)
 
 @login_manager.user_loader
 def load_user(user_id):

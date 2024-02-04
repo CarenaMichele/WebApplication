@@ -32,32 +32,98 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container-fluid mt-4">
+  <form action="/filtro" method="POST">
     <div class="row">
-      {% for annuncio in allAnnunci %}
-      <div class="card mb-4">
-
-        <!-- Card image -->
-        <div class="view overlay">
-          <img class="card-img-top" src=""
-            alt="Card image cap">
-          <a href="#!">
-            <div class="mask rgba-white-slight"></div>
-          </a>
-        </div>
-    
-        <!-- Card content -->
-        <div class="card-body">
-          <h4 class="card-title">{{annuncio.titolo}}</h4>
-          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
-            content.</p>
-          <!-- Provides extra visual weight and identifies the primary action in a set of buttons -->
-          <button type="button" class="btn btn-primary btn-md">Read more</button>
-        </div>
+      <div class="col-3"></div>
+      <div class="col-5 filtroButton">
+        <select class="form-control" id="filterSelect" name="selFiltro">
+          <option value=""></option>
+          <option value="numLocali">NUMERO LOCALI (crescente)</option>
+          <option value="prezzo">PREZZO MENSILE (decrescente)</option>
+          <!-- Aggiungi altre opzioni secondo necessità -->
+        </select>
       </div>
-      {% endfor %}
+      <div class="col-1">
+        <button type="submit" class="btn btn-primary">Ordina</button>
+      </div>
+      <div class="col-3"></div>
+    </div> 
+  </form>
+  <div class="row">
+    {% for annuncio in allAnnunci %}
+    {% set foto_list = annuncio.foto_concatenate.split(',') %}
+    <div class="col-md-4 mb-4">
+      <div class="card equal-height-card">
+        <a href="" data-bs-toggle="modal" data-bs-target="#Modal{{annuncio.idAnnuncio}}">
+          <img src="{{ url_for('static', filename=foto_list[0]) }}" class="card-img-top" alt="Immagine Prodotto">
+        </a>
+        <div class="card-body">
+          <h5 class="card-title">{{annuncio.titolo}}</h5>
+          <h6 class="card-subtitle mb-2 text-muted">{{annuncio.indirizzo}}</h6>
+          <p class="card-text">{{annuncio.tipoCasa}}</p>
+          <p class="card-text">{{annuncio.numeroLocali}}</p>
+          <p class="card-text">{{annuncio.prezzoMensile}}€</p>
+          <a href="#myModal" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#Modal{{annuncio.idAnnuncio}}">Maggiori Informazioni</a>
+          </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+ 
+</div>
+{% for annuncio in allAnnunci %}
+<div class="modal fade" id="Modal{{annuncio.idAnnuncio}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="exampleModalLabel">{{annuncio.titolo}}</h4>
+      </div>
+      <div class="modal-body">
+        <div id="carouselExample" class="carousel slide" data-ride="carousel"> <!--data-interval="3000" data-pause="hover"-->
+          <div class="carousel-inner mb-4">
+            {% set foto_list = annuncio.foto_concatenate.split(',') %}
+              {% for foto in foto_list %}
+                <div class="carousel-item {% if loop.index == 1 %}active{% endif %}">
+                  <img src="{{ url_for('static', filename=foto) }}" class="d-block w-100" alt="Foto {{loop.index}}">
+                </div>
+              {% endfor %}
+          </div>
+          <!--<a class="carousel-control-prev" href="#carouselExample" role="button" data-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          </a>
+          <a class="carousel-control-next" href="#carouselExample" role="button" data-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          </a>-->
+        </div>
+        <p><strong>Indirizzo: </strong>{{annuncio.indirizzo}}</p>
+        <p><strong>Tipo: </strong>{{annuncio.tipoCasa}}</p>
+        <p><strong>Numero Locali: </strong>{{annuncio.numeroLocali}}</p>
+        <p><strong>Descrizione: </strong>{{annuncio.descrizione}}</p>
+        <p><strong>Prezzo Mensile: </strong>{{annuncio.prezzoMensile}}€</p>
+        <p><strong>Arredamento: </strong>{{annuncio.arredamento}}</p>
+        <p><strong>Disponibilità: </strong>{{annuncio.disponibilita}}</p>
+        <p><strong>Utente: </strong>{{annuncio.nome}} {{annuncio.cognome}}</p>
+      </div>
+      <form action="/prenotazione/{{annuncio.idAnnuncio}}" method="POST">
+        <div class="modal-footer">
+          {% if not current_user.is_authenticated %}  
+            <a href="{{url_for('Page_login')}}" class="btn btn-primary">Prenota una visita</a>
+          {% else %}
+            {% if current_user.id == annuncio.idUtente %}
+            <button type="submit" class="btn btn-primary" disabled>Prenota una visita</button>
+            {% else %}
+              <button type="submit" class="btn btn-primary" >Prenota una visita</button>
+            {% endif %}
+          {% endif %}
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+        </div>
+      </form>
     </div>
   </div>
-
-
+</div>
+{% endfor %}
 {% endblock %}
+
+
+

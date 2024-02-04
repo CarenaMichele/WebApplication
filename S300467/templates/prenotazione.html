@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Homepage{% endblock %}
+{% block liNav %}
+<li class="nav-item">
+    <a class="nav-link mx-2 active" aria-current="page" href="{{url_for('index')}}">Home</a>
+  </li>
+  <li class="nav-item d-none d-lg-block">
+    <a class="nav-link mx-2" href="#">
+      <img src="/static_files/images/logos/logo_2_white.png" height="80" />
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link mx-2" href="#">Profilo</a>
+  </li>
+  {% if current_user.is_authenticated %}
+  <li class="nav-item">
+    <a class="nav-link mx-2" href="{{url_for('logout')}}">Logout</a>
+  </li>
+  {% else %}
+  <li class="nav-item">
+    <a class="nav-link mx-2" href="{{url_for('Page_login')}}">Login</a>
+  </li>
+</li>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-5">
+    {% if current_user.is_authenticated %}
+        <form action="" method="POST" enctype="multipart/form-data">
+            <h4>Prenota una visita!</h4>
+            <div class="form-group mb-3">
+                <label for="divDisponibile">Modalità visita:</label>
+                <div class="form-check form-check-inline" id="divDisponibile">
+                    <input type="radio" class="form-check-input" name="modVisita" value="PERSONA" checked>DI PERSONA                                      
+                    <label class="form-check-label"></label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input" name="modVisita" value="REMOTO">DA REMOTO
+                    <label class="form-check-label"></label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="data">Seleziona una data (nei 7 giorni seguenti la data odierna):</label>
+                <input type="date" class="form-control" name="data" min="{{domani}}" max="{{setteGiorniDopo}}">
+            </div>
+            <div class="form-group">
+                <label for="fasciaOraria">Fascia Oraria</label>
+                <select class="form-control" name="fasciaOraria" required>
+                  <option></option>
+                  <option>9-12</option>
+                  <option>12-14</option>
+                  <option>14-17</option>
+                  <option>17-20</option>
+                </select>
+            </div>
+            <div class="form-group mt-4">
+                <button type="submit" id="annuncio" class="btn btn-success">Aggiungi Annuncio</button>
+            </div>
+        </form>
+    {% endif %}
+
+{% endblock %}

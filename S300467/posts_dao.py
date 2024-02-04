@@ -222,14 +222,38 @@ def get_allAnnunci():
     conn.row_factory = sqlite3.Row 
     cursor= conn.cursor()
 
-    sql = 'SELECT  ANNUNCI.idAnnuncio, titolo, indirizzo, tipoCasa, numeroLocali, descrizione, \
-    prezzoMensile, arredamento, disponibilita, urlFoto FROM ANNUNCI, FOTO \
-    where ANNUNCI.idAnnuncio = FOTO.idAnnuncio \
-    GROUP BY ANNUNCI.idAnnuncio'
-    #uso del group by per raggruppare le informazioni identiche (foto) relative allo stesso idAnnuncio
+    sql = '''SELECT ANNUNCI.* ,GROUP_CONCAT(urlFoto, ',') AS foto_concatenate, UTENTI.nome, UTENTI.cognome
+        FROM ANNUNCI, FOTO, UTENTI
+        where ANNUNCI.idAnnuncio = FOTO.idAnnuncio and ANNUNCI.disponibilita = 'SI' and UTENTI.idUtente=ANNUNCI.idUtente
+        GROUP BY ANNUNCI.idAnnuncio
+        ORDER BY ANNUNCI.prezzoMensile DESC'''
     cursor.execute(sql, ())
     annunci= cursor.fetchall()
-    #print(annunci)
+
+    cursor.close()
+    conn.close()
+
+    return annunci
+
+def ordina(info):
+    conn =sqlite3.connect('db/affitti.db')
+    conn.row_factory = sqlite3.Row 
+    cursor= conn.cursor()
+
+    if info == 'numLocali':
+        sql = '''SELECT ANNUNCI.* ,GROUP_CONCAT(urlFoto, ',') AS foto_concatenate 
+            FROM ANNUNCI, FOTO 
+            where ANNUNCI.idAnnuncio = FOTO.idAnnuncio and ANNUNCI.disponibilita = 'SI'
+            GROUP BY ANNUNCI.idAnnuncio
+            ORDER BY ANNUNCI.numeroLocali ASC, ANNUNCI.PrezzoMensile DESC'''
+    else:
+        sql = '''SELECT ANNUNCI.* ,GROUP_CONCAT(urlFoto, ',') AS foto_concatenate 
+            FROM ANNUNCI, FOTO 
+            where ANNUNCI.idAnnuncio = FOTO.idAnnuncio and ANNUNCI.disponibilita = 'SI'
+            GROUP BY ANNUNCI.idAnnuncio
+            ORDER BY ANNUNCI.prezzoMensile DESC, ANNUNCI.numeroLocali ASC'''
+    cursor.execute(sql, ())
+    annunci= cursor.fetchall()
 
     cursor.close()
     conn.close()
