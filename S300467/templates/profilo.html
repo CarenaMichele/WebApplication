@@ -247,9 +247,77 @@
             </tr>
             {% endfor %}
           </tbody>
+        </table>
       </div>
+
+    <div class="row">
+        <h4>Richieste di Visita</h4>
     </div>
+    <div style="background-color: #e7effd;">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">Annuncio</th>
+              <th scope="col">Data</th>
+              <th scope="col">tipo Visita</th>
+              <th scope="col">fascia Oraria</th>
+              <th scope="col">stato</th>
+              <th scope="col"></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for pren in prenotazioni %}
+              <tr>
+              <form action="/gestioneStatoRichiesta" method="POST">
+                <td><input type="hidden" name="idAnnuncio" value="{{pren.idAnnuncio}}">{{pren.idAnnuncio}}</th>
+                <td><input type="hidden" name="data" value="{{pren.Data}}">{{pren.Data}}</td>
+                <td>{{pren.tipoVisita}}</td>
+                <td><input type="hidden" name="fasciaOraria" value="{{pren.fasciaOraria}}">{{pren.fasciaOraria}}</td>
+                <td>{{pren.stato}}</td>
+                {% if pren.stato == 'richiesta' %}
+                <td><button type="submit" class="btn btn-success" name="btnRichiesta" value="accetta">ACCETTA</button></td>
+              </form>
+                    <!--<form method="POST" action='/rifiuto'>-->
+                      <td><button class="btn btn-danger" name="btnRichiesta" value="rifiuta">RIFIUTA</button></td>
+                    <!--</form>-->
+                  </td>
+                {% endif %}
+
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+    <!--profilo cliente-->
   {% else %}
-    <p>ciao cliente</p>
+    <div style="background-color: #e7effd;">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">Data</th>
+            <th scope="col">tipo Visita</th>
+            <th scope="col">fascia Oraria</th>
+            <th scope="col">stato</th>
+            <th scope="col">motivazione Rifiuto</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pren in prenotazioni %}
+            <tr>
+              <th scope="row">{{pren.Data}}</th>
+              <td>{{pren.tipoVisita}}</td>
+              <td>{{pren.fasciaOraria}}</td>
+              <td>{{pren.stato}}</td>
+              {% if pren.motivazioneRifiuto is not none %}
+              <td>{{pren.motivazioneRifiuto}}</td>
+              {% else %}
+              <td></td>
+              {% endif%}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   {% endif %}
 {% endblock %}

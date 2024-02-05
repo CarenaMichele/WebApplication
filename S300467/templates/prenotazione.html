@@ -27,38 +27,85 @@
 {% block content %}
 <div class="container-fluid mt-5">
     {% if current_user.is_authenticated %}
-        <form action="" method="POST" enctype="multipart/form-data">
+          {%if orari is not defined %}
+        <!--<form action="" method="POST" enctype="multipart/form-data">-->
             <h4 class="mb-4">Prenota una visita!</h4>
-            <div class="form-group mb-3">
-                <label for="divDisponibile">Modalità visita:</label>
-                <div class="form-check form-check-inline" id="divDisponibile">
-                    <input type="radio" class="form-check-input" name="modVisita" value="PERSONA" checked>DI PERSONA                                      
-                    <label class="form-check-label"></label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input type="radio" class="form-check-input" name="modVisita" value="REMOTO">DA REMOTO
-                    <label class="form-check-label"></label>
-                </div>
-            </div>
-            <div class="form-group">
+            <form action="/gestioneOra/{{id}}" method="POST">
+              <div class="form-group mb-3">
+                  <label for="divDisponibile">Modalità visita:</label>
+                  <div class="form-check form-check-inline" id="divDisponibile">
+                      <input type="radio" class="form-check-input" name="modVisita" value="persona" checked>DI PERSONA                                      
+                      <label class="form-check-label"></label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                      <input type="radio" class="form-check-input" name="modVisita" value="remoto">DA REMOTO
+                      <label class="form-check-label"></label>
+                  </div>
+              </div>
+              <div class="form-group">
                 <label for="data">Seleziona una data (nei 7 giorni seguenti la data odierna):</label>
                 <input type="date" class="form-control" name="data" min="{{domani}}" max="{{setteGiorniDopo}}">
-            </div>
-            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Cerca</button>
+              </div>
+            </form>
+            <div class="form-group mt-4">
+              <a href="{{url_for('index')}}" class="btn btn-success">Annulla Prenotazione</a>
+          </div>
+          {% else %}
+            <h4 class="mb-4">Prenota una visita!</h4>
+            <form action="/aggPrenotazione/{{id}}" method="POST">
+              <!--<input type="text" name="idUtente" value="{{current_user.id}}" hidden>-->
+              <div class="form-group mb-3">
+                  <label for="divDisponibile">Modalità visita:</label>
+                  {% if richiesta.modVisita == 'PERSONA' %}
+                  <div class="form-check form-check-inline">
+                      <input type="radio" class="form-check-input" name="modVisita" value="persona" checked>DI PERSONA                                      
+                      <label class="form-check-label"></label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                      <input type="radio" class="form-check-input" name="modVisita" value="remoto">DA REMOTO
+                      <label class="form-check-label"></label>
+                  </div>
+                  {%else%}
+                  <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input" name="modVisita" value="persona">DI PERSONA                                      
+                    <label class="form-check-label"></label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                      <input type="radio" class="form-check-input" name="modVisita" value="remoto" checked>DA REMOTO
+                      <label class="form-check-label"></label>
+                  </div>
+                  {%endif%}
+              </div>
+              <div class="form-group">
+                <label for="data">Seleziona una data (nei 7 giorni seguenti la data odierna):</label>
+                <input type="date" class="form-control grigioChiaro" name="data" min="{{domani}}" max="{{setteGiorniDopo}}" value="{{richiesta.data}}" readonly>
+              </div>
+              <div class="form-group">
                 <label for="fasciaOraria">Fascia Oraria</label>
                 <select class="form-control" name="fasciaOraria" required>
                   <option></option>
-                  <option>9-12</option>
-                  <option>12-14</option>
-                  <option>14-17</option>
-                  <option>17-20</option>
+                  {% set fasceO = ['9-12','12-14','14-17','17-20'] %}                  
+                  <!--per ogni fascia oraria vado a vedere se presente nell'elenco
+                  delle fasce orarie estratte da orari-->
+                  {%for fasciaO in fasceO %}  
+                    {% if fasciaO not in orari|map(attribute='fasciaOraria') %}
+                    <!--in questo caso l'attributo specificato viene estratto da ciascun elemento della sequenza
+                    il risultato sarà una lista contenente i valori del campo 'fasciaOraria'
+                    es. ['9-12', '14-17']-->
+                        <option value="{{ fasciaO}}">{{ fasciaO }}</option>
+                    {% endif %}
+                  {% endfor %}
+                  
                 </select>
-            </div>
-            <div class="form-group mt-4">
-                <button type="submit" id="annuncio" class="btn btn-success">Aggiungi Prenotazione</button>
-                <a href="{{url_for('index')}}" class="btn btn-outline-success">Annulla Prenotazione</a>
-            </div>
-        </form>
+              </div>
+              <div class="form-group mt-4">
+                  <button type="submit" class="btn btn-success">Aggiungi Prenotazione</button>
+                  <a href="{{url_for('prenotazione', id=id)}}" class="btn btn-outline-success">Torna Indietro</a>
+              </div>
+            </form>
+            {% endif %}
+        <!--</form>-->
     {% endif %}
 
 {% endblock %}

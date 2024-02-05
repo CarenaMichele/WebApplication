@@ -45,8 +45,9 @@ def profilo(id=None): #annuncio=None significa che il parametro è opzionale.
       annuncio=posts_dao.get_singleAnnuncio(id)
       return render_template('profilo.html', annunci=annunci, annuncio=annuncio)
    else:
+      prenotazioni=posts_dao.get_prenotazioni(current_user.id, current_user.tipo)
       annunci=posts_dao.get_annunci(current_user.id)
-      return render_template('profilo.html', annunci=annunci)
+      return render_template('profilo.html', annunci=annunci, prenotazioni=prenotazioni)
 
 
 @app.route('/signup', methods=['POST'])
@@ -216,22 +217,88 @@ def filtro():
     #app.logger.info(info)
     return redirect(url_for('index', info=info))
 
-
-@app.route('/prenotazione/<int:id>', methods=['POST'])
+#route per inizializzare campi input del form della prenotazione, parametro è idAnnuncio
+@app.route('/prenotazione/<int:id>', methods=['GET','POST'])
 @login_required
 def prenotazione(id):
+   idUtente=current_user.id
+   sol=posts_dao.get_prenotazioni(id, idUtente)
+   app.logger.info(sol)
+   if sol == []:
+      oggi=datetime.now().date()
+      domani=oggi+timedelta(days=1)
+      setteGiorniDopo=oggi+timedelta(days=7)
+
+      #formatto le date nel formato richiesto dall'input date
+      #formato generale = YYYY-MM-DD
+      #isoformat = fornisce rappresentazione di una data in formato stringa
+      domaniForm = domani.isoformat() 
+      setteGiorniDopoForm = setteGiorniDopo.isoformat()
+      return render_template('prenotazione.html', id=id, domani=domaniForm, setteGiorniDopo=setteGiorniDopoForm)
+   else:
+      flash("Hai già fatto una richiesta di visita per questa casa! Attendi la conferma del locatore", 'danger')
+      return redirect(url_for('index'))
+
+#route per andare a prendere le fasce orarie a partire dalla data
+@app.route('/gestioneOra/<int:id>', methods=['POST'])
+def gestioneOra(id):
    oggi=datetime.now().date()
    domani=oggi+timedelta(days=1)
    setteGiorniDopo=oggi+timedelta(days=7)
-
-   #formatto le date nel formato richiesto dall'input date
-   #formato generale = YYYY-MM-DD
-   #isoformat = fornisce rappresentazione di una data in formato stringa
    domaniForm = domani.isoformat() 
    setteGiorniDopoForm = setteGiorniDopo.isoformat()
+
+   richiestaPren=request.form.to_dict()
+   #data=request.form.get('data')
+   #modVisita=request.form.get('modVisita')
    
-   #app.logger.info(giornoFormattato)
-   return render_template('prenotazione.html', id=id, domani=domaniForm, setteGiorniDopo=setteGiorniDopoForm)
+   if richiestaPren['data']:
+   #come risultato tutte le ore di quel giorno già prese per quell'annuncio
+      fasceOrNonDisp=posts_dao.gestioneOra(id, richiestaPren['data'])
+      return render_template('prenotazione.html', id=id, domani=domaniForm, setteGiorniDopo=setteGiorniDopoForm, orari=fasceOrNonDisp, richiesta= richiestaPren)
+   else:
+      flash('Inserisci la Data!','danger')
+      return render_template('prenotazione.html', id=id, domani=domaniForm, setteGiorniDopo=setteGiorniDopoForm)
+   
+#route per aggiungere prenotazione (parametro è idAnnuncio)
+@app.route('/aggPrenotazione/<int:id>', methods=['POST'])
+@login_required
+def aggPrenotazione(id):
+   info=request.form.to_dict()
+
+   if info['data']=='':
+         success=False
+   if info['fasciaOraria']=='':
+         success=False
+
+   info['idUtente'] = current_user.id
+   info['stato'] ='richiesta'
+   info['motivazioneRifiuto']=None
+   success=posts_dao.add_prenotazione(id, info)
+
+   if success:
+      flash('Prenotazione richiesta correttamente!', 'success')
+     
+   else:
+      flash('Errore nella richiesta della prenotazione!','danger')
+      #return render_template('prenotazione.html', id=id, domani=domaniForm, setteGiorniDopo=setteGiorniDopoForm)
+   return redirect(url_for('index'))
+
+@app.route('/gestioneStatoRichiesta', methods=['POST'])
+def gestioneStatoRichiesta():
+   if 'btnRichiesta' in request.form:
+      if request.form['btnRichiesta'] =='accetta':
+         dati=request.form.to_dict()
+         app.logger.info(dati['idAnnuncio'])
+         success=posts_dao.mod_richiesta(dati)
+         app.logger.info(success)
+      else:
+         app.logger.info("rifiuta")
+
+      if success:
+         flash("Visita accettata correttamente!", "success")
+
+      return redirect(url_for('profilo'))
 
 @login_manager.user_loader
 def load_user(user_id):

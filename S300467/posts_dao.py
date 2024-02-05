@@ -259,3 +259,99 @@ def ordina(info):
     conn.close()
 
     return annunci
+
+def gestioneOra(id, data):
+    conn =sqlite3.connect('db/affitti.db')
+    conn.row_factory = sqlite3.Row 
+    cursor= conn.cursor()
+    print(id,data)
+    try:
+        sql = "SELECT fasciaOraria FROM PRENOTAZIONI WHERE stato = 'accettata' AND Data=? AND idAnnuncio=?"
+        cursor.execute(sql, (data,id))
+        dataOra= cursor.fetchall() #come risultato tutte le ore non più disponibili
+    except sqlite3.Error as e:
+        print("ERROR",str(e))
+        conn.rollback()
+
+    cursor.close()
+    conn.close()
+
+    return dataOra
+
+
+def add_prenotazione(idAnnuncio, info):
+    conn=sqlite3.connect('db/affitti.db')
+    conn.row_factory=sqlite3.Row
+    cursor=conn.cursor()
+    success=False
+    sql ='INSERT INTO PRENOTAZIONI(Data, tipoVisita, fasciaOraria, stato, motivazioneRifiuto, idAnnuncio, idUtente) VALUES(?,?,?,?,?,?,?)'
+    #non usare tipo NUMERIC nel db per il prezzo perchè da db locked error 
+    try:
+        cursor.execute(sql, (info['data'], info['modVisita'], info['fasciaOraria'], info['stato'], info['motivazioneRifiuto'], idAnnuncio, info['idUtente']))
+        conn.commit()
+        success=True
+    except Exception as e:
+        print("ERROR",str(e))
+        conn.rollback()
+
+    cursor.close()
+    conn.close()
+
+    return success
+
+
+def get_prenotazioni(idAnnuncio, idUtente):
+    conn =sqlite3.connect('db/affitti.db')
+    conn.row_factory = sqlite3.Row 
+    cursor= conn.cursor()
+
+    sql = 'SELECT * FROM PRENOTAZIONI where idAnnuncio=? and idUtente=? and stato !="rifiutata"'
+
+    cursor.execute(sql, (idAnnuncio,idUtente))
+    sol= cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return sol
+
+def get_prenotazioni(id, tipo):
+    conn =sqlite3.connect('db/affitti.db')
+    conn.row_factory = sqlite3.Row 
+    cursor= conn.cursor()
+
+    if tipo=='cliente':
+        sql = '''SELECT  * FROM PRENOTAZIONI where idUtente = ?'''
+        cursor.execute(sql, (id,))
+        prenotazioni= cursor.fetchall()
+    elif tipo=='locatore':
+        sql='''SELECT  * FROM PRENOTAZIONI, ANNUNCI 
+            WHERE PRENOTAZIONI.idAnnuncio=ANNUNCI.idAnnuncio
+            AND ANNUNCI.idUtente=? '''
+        cursor.execute(sql, (id,))
+        prenotazioni=cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return prenotazioni
+
+
+def mod_richiesta(dati):
+    conn =sqlite3.connect('db/affitti.db')
+    conn.row_factory = sqlite3.Row 
+    cursor= conn.cursor()
+    success=False
+    sql ='UPDATE PRENOTAZIONI SET stato=? WHERE idAnnuncio= ? AND Data=? AND fasciaOraria=? '
+    try:
+        cursor.execute(sql, ('accettata', dati['idAnnuncio'], dati['data'], dati['fasciaOraria']))
+        conn.commit()
+        success=True
+    except Exception as e:
+        print("ERROR",str(e))
+        conn.rollback()
+    
+    cursor.close()
+    conn.close()
+
+    return success
