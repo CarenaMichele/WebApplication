@@ -87,7 +87,7 @@ def add_foto(foto, id):
     success=False
     try:
         for i in foto:
-            cursor.execute('INSERT INTO FOTO(urlFoto, idAnnuncio) VALUES (?,?)', (i, id))
+            cursor.execute('INSERT INTO FOTO(urlFoto, idAnnuncio, rimosso) VALUES (?,?,?)', (i, id, 'FALSE'))
         conn.commit()
         success=True
     except Exception as e:
@@ -104,10 +104,10 @@ def get_annunci(id):
     conn.row_factory = sqlite3.Row 
     cursor= conn.cursor()
 
-    sql = 'SELECT  ANNUNCI.idAnnuncio, titolo, indirizzo, tipoCasa, numeroLocali, descrizione, \
-    prezzoMensile, arredamento, disponibilita, urlFoto FROM ANNUNCI, FOTO \
-    where ANNUNCI.idUtente = ? and ANNUNCI.idAnnuncio = FOTO.idAnnuncio \
-    GROUP BY ANNUNCI.idAnnuncio'
+    sql = '''SELECT  ANNUNCI.idAnnuncio, titolo, indirizzo, tipoCasa, numeroLocali, descrizione, 
+    prezzoMensile, arredamento, disponibilita, urlFoto FROM ANNUNCI, FOTO 
+    where ANNUNCI.idUtente = ? and ANNUNCI.idAnnuncio = FOTO.idAnnuncio and FOTO.rimosso= 'FALSE' 
+    GROUP BY ANNUNCI.idAnnuncio'''
     #uso del group by per raggruppare le informazioni identiche (foto) relative allo stesso idAnnuncio
     cursor.execute(sql, (id,))
     annunci= cursor.fetchall()
@@ -125,7 +125,7 @@ def get_singleAnnuncio(id):
     #utilizzo di GROUP_CONCAT per concatenare su un'unica riga tutte le foto di quell'annuncio
     sql = '''SELECT ANNUNCI.* ,GROUP_CONCAT(urlFoto, ',') AS foto_concatenate 
            FROM ANNUNCI, FOTO 
-           where ANNUNCI.idAnnuncio = ? and ANNUNCI.idAnnuncio = FOTO.idAnnuncio 
+           where ANNUNCI.idAnnuncio = ? and ANNUNCI.idAnnuncio = FOTO.idAnnuncio and FOTO.rimosso ='FALSE' 
            GROUP BY ANNUNCI.idAnnuncio'''
     cursor.execute(sql, (id,))
     annuncio= cursor.fetchone()  #vedere se meglio fetchone o fetchall
@@ -152,6 +152,32 @@ def mod_ann(annuncio, id):
     
     cursor.close()
     conn.close()
+
+    return success
+
+def mod_foto(foto,id):
+    conn=sqlite3.connect('db/affitti.db')
+    conn.row_factory=sqlite3.Row
+    cursor=conn.cursor()
+    success=False
+
+    cursor.execute('SELECT urlFoto FROM FOTO WHERE idAnnuncio=? ',(id,))
+    immDB = [row['urlFoto'] for row in cursor.fetchall()]
+    print(immDB)
+    print(foto)
+    for immNuova in foto:
+            if immNuova not in immDB:
+            # Se l'immagine non è presente nel database, inseriscila
+                cursor.execute('INSERT INTO FOTO (urlFoto, idAnnuncio, rimosso)VALUES (?, ?, ?)', (immNuova, id, 'FALSE'))
+                conn.commit()
+            success = True
+
+    for immPresente in immDB:
+        if immPresente not in foto:
+            # Se l'immagine non è più presente nel vettore, segnala come "rimosso"
+            cursor.execute('UPDATE FOTO SET rimosso = ? WHERE urlFoto = ? AND idAnnuncio=?', ('TRUE',immPresente, id))
+            conn.commit()
+            success = True
 
     return success
 
@@ -197,25 +223,6 @@ def get_id(annuncio):
 
     return sol
 
-def remove_foto(foto,id):
-    conn =sqlite3.connect('db/affitti.db')
-    conn.row_factory = sqlite3.Row 
-    cursor= conn.cursor()
-    success=False
-    sql ='DELETE FROM FOTO WHERE urlFoto= ? AND idAnnuncio=? '
-    try:
-        cursor.execute(sql, (foto,id))
-        conn.commit()
-        success=True
-    except Exception as e:
-        print("ERROR",str(e))
-        conn.rollback()
-    
-    cursor.close()
-    conn.close()
-
-    return success
-
 
 def get_allAnnunci():
     conn =sqlite3.connect('db/affitti.db')
@@ -224,7 +231,7 @@ def get_allAnnunci():
 
     sql = '''SELECT ANNUNCI.* ,GROUP_CONCAT(urlFoto, ',') AS foto_concatenate, UTENTI.nome, UTENTI.cognome
         FROM ANNUNCI, FOTO, UTENTI
-        where ANNUNCI.idAnnuncio = FOTO.idAnnuncio and ANNUNCI.disponibilita = 'SI' and UTENTI.idUtente=ANNUNCI.idUtente
+        where ANNUNCI.idAnnuncio = FOTO.idAnnuncio and ANNUNCI.disponibilita = 'SI' and UTENTI.idUtente=ANNUNCI.idUtente and FOTO.rimosso='FALSE'
         GROUP BY ANNUNCI.idAnnuncio
         ORDER BY ANNUNCI.prezzoMensile DESC'''
     cursor.execute(sql, ())
@@ -243,13 +250,13 @@ def ordina(info):
     if info == 'numLocali':
         sql = '''SELECT ANNUNCI.* ,GROUP_CONCAT(urlFoto, ',') AS foto_concatenate 
             FROM ANNUNCI, FOTO 
-            where ANNUNCI.idAnnuncio = FOTO.idAnnuncio and ANNUNCI.disponibilita = 'SI'
+            where ANNUNCI.idAnnuncio = FOTO.idAnnuncio and ANNUNCI.disponibilita = 'SI' and FOTO.rimosso='FALSE'
             GROUP BY ANNUNCI.idAnnuncio
             ORDER BY ANNUNCI.numeroLocali ASC, ANNUNCI.PrezzoMensile DESC'''
     else:
         sql = '''SELECT ANNUNCI.* ,GROUP_CONCAT(urlFoto, ',') AS foto_concatenate 
             FROM ANNUNCI, FOTO 
-            where ANNUNCI.idAnnuncio = FOTO.idAnnuncio and ANNUNCI.disponibilita = 'SI'
+            where ANNUNCI.idAnnuncio = FOTO.idAnnuncio and ANNUNCI.disponibilita = 'SI' and FOTO.rimosso='FALSE'
             GROUP BY ANNUNCI.idAnnuncio
             ORDER BY ANNUNCI.prezzoMensile DESC, ANNUNCI.numeroLocali ASC'''
     cursor.execute(sql, ())

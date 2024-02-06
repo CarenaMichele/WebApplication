@@ -217,17 +217,25 @@ def Ann(par):
                      file_paths.append(fileP)
             fotoList=request.form.get('fotoList')
             fotoList_array= fotoList.split(',')
-                  #app.logger.info(len(fotoList_array))
+            #fotoList_array = fotoList_array.replace('"[', '').replace(']"', '')
+            #app.logger.info(fotoList_array)
+            #app.logger.info(file_paths)
 
             numFotoTot=lunFoto+len(fotoList_array)
-            app.logger.info(numFotoTot)
+            #app.logger.info(numFotoTot)
             if numFotoTot>5:
                raise Exception
             else:
-               app.logger.info("continua")
+               fotoList_pulito = [item.replace("['", '').replace("']", '').replace("'",'').strip() for item in fotoList_array]
 
+               # Unisci i due vettori
+               vettoreMerge = fotoList_pulito + file_paths
+
+               # Stampare il risultato
+               #app.logger.info(vettoreMerge)
+               #app.logger.info(id[0])
          #DA GESTIRE MODIFICA DELLE FOTO
-         #success=posts_dao.mod_foto(file_paths,id[0])
+               success=posts_dao.mod_foto(vettoreMerge,id[0])
 
       if success and par=='new':
          flash('Annuncio creato correttamente!', 'success')
