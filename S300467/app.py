@@ -1,20 +1,18 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import posts_dao, os
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-#from flask_session import Session
 from models import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 
-app= Flask(__name__) #qualunque sia il nome dell'app viene rimpiazzato in tempo di esecuzione
+app= Flask(__name__)
 app.config['SECRET_KEY']=os.urandom(24)
 
 login_manager=LoginManager()
 login_manager.init_app(app)
 
-#app.config['PERMANENT_SESSION_LIFETIME']=timedelta(days=365)
 @app.route('/<info>')
-@app.route('/')  #quando il server riceve una richiesta get in questo caso, allora deve eseguire il contenuto della funzione
+@app.route('/') 
 def index(info=None):
    if info is not None:
       if info=='numLocali':
@@ -37,18 +35,53 @@ def sign_up():
    
 @app.route('/profilo')
 @app.route('/profilo/<int:id>')
+@app.route('/profilo/<int:id>/<path:foto>')
 @login_required
-def profilo(id=None): #annuncio=None significa che il parametro è opzionale. 
+def profilo(id=None, foto=None): #annuncio=None significa che il parametro è opzionale. 
    #Se il parametro non viene fornito nell'URL, annuncio sarà impostata a None di default
-   if id is not None:
+   #app.logger.info(foto)
+   if foto is None and id is not None:
+      #app.logger.info(id)
       annunci=posts_dao.get_annunci(current_user.id)
       annuncio=posts_dao.get_singleAnnuncio(id)
-      return render_template('profilo.html', annunci=annunci, annuncio=annuncio)
-   else:
-      prenotazioni=posts_dao.get_prenotazioni(current_user.id, current_user.tipo)
+      prenotazioniL1, prenotazioniL2=posts_dao.get_prenotazioniL(current_user.id)
+      return render_template('profilo.html', annunci=annunci, annuncio=annuncio,prenotazioniL1=prenotazioniL1, prenotazioniL2=prenotazioniL2)
+   #quando si vuole rimuovere una foto precisa durante il modifica, vado
+   #solamente a rimuovere la foto in questione da foto_concatenate
+   if foto is not None and id is not None:
       annunci=posts_dao.get_annunci(current_user.id)
-      return render_template('profilo.html', annunci=annunci, prenotazioni=prenotazioni)
+      annuncio=posts_dao.get_singleAnnuncio(id)
+      #oggetti sqlite3.row sono immutabili, quindi utilizzo annuncio_dict come parametro
+      #per passarlo alla return 
+      annuncio_dict=dict(annuncio)
+      #splitto la stringa in una lista tramite split
+      foto_concatenate=annuncio['foto_concatenate'].split(',')
+      #rimuovo la foto interessata passata tramite url
+      if foto in foto_concatenate:
+         foto_concatenate.remove(foto)
+      #ricostruisco la stringa delle foto rimanenti
+      nuova_foto_concatenate=','.join(foto_concatenate)
+      annuncio_dict['foto_concatenate']=nuova_foto_concatenate
 
+      prenotazioniL1, prenotazioniL2=posts_dao.get_prenotazioniL(current_user.id)
+      return render_template('profilo.html', annunci=annunci, annuncio=annuncio_dict,prenotazioniL1=prenotazioniL1, prenotazioniL2=prenotazioniL2)
+   if foto is None and id is None:
+      annunci=posts_dao.get_annunci(current_user.id)
+      if current_user.tipo=='locatore':
+         prenotazioniL1, prenotazioniL2=posts_dao.get_prenotazioniL(current_user.id)
+         return render_template('profilo.html', annunci=annunci, prenotazioniL1=prenotazioniL1, prenotazioniL2=prenotazioniL2)
+      else:
+         prenotazioniC=posts_dao.get_prenotazioniC(current_user.id)
+         return render_template('profilo.html', annunci=annunci, prenotazioni=prenotazioniC)
+   else:
+       return render_template('index.html')
+#serve per il bottone rifiuta della richiesta visita, ridondante però
+@app.route('/profilo2/<int:indice>')
+@login_required
+def profilo2(indice):
+   prenotazioniL1, prenotazioniL2=posts_dao.get_prenotazioniL(current_user.id)
+   annunci=posts_dao.get_annunci(current_user.id)
+   return render_template('profilo.html', annunci=annunci, prenotazioniL1=prenotazioniL1, prenotazioniL2=prenotazioniL2, rifiuto=indice)
 
 @app.route('/signup', methods=['POST'])
 def signup():
@@ -70,8 +103,6 @@ def signup():
       if 'tipo' in new_user_from_form:
          app.logger.info('il tipo scelto '+ new_user_from_form['tipo'])
       
-
-    
       new_user_from_form ['password'] = generate_password_hash(new_user_from_form ['password'])
       app.logger.info(new_user_from_form['password'])
 
@@ -84,8 +115,6 @@ def signup():
      
   except Exception:
    flash('Errore nella registrazione: riprova!', 'danger')
-  
-
   return redirect(url_for('sign_up'))
 
 
@@ -93,12 +122,9 @@ def signup():
 def login():
    try:
       utente_form = request.form.to_dict()
-      #app.logger.info(utente_form)
-
       if utente_form['username']=='' or utente_form['password']=='':
          raise Exception
       utente_db = posts_dao.get_user_by_username(utente_form['username'])
-      #app.logger.info(utente_db.utente_id,utente_db.username)
       if utente_db and check_password_hash(utente_db['password'], utente_form['password']):
          new = User(id=utente_db['idUtente'],
                     username=utente_db['username'], 
@@ -126,10 +152,7 @@ def logout():
 @login_required
 def Ann(par):
    try:
-     
       annuncio=request.form.to_dict()
-      #app.logger.info(annuncio['indirizzo'])
-      #app.logger.info(annuncio)
       if annuncio['titolo']=='':
          raise Exception
       if annuncio['indirizzo']=='':
@@ -150,7 +173,7 @@ def Ann(par):
       annuncio['idLocatore']=current_user.id #uso di current_user per passare idLocatore nel db
       foto=request.files.getlist('imgAnnuncio') #getlist serve per ottenere una lista di file 
       #massimo 5 foto posso aggiungere
-      
+      #app.logger.info(foto)
       if par == 'new':
          #forse è meglio usarlo sia per la creazione che per la modifica
          if len(foto)>5:
@@ -167,11 +190,41 @@ def Ann(par):
          # dalla funzione add_ann faccio ritornare l'id dell'annuncio
          #appena inserito per usarlo nella tabella foto come chiave esterna
          success=posts_dao.add_foto(file_paths, sol['idAnnuncio'])
-      else:
-         app.logger.info(par)
-         id=posts_dao.get_id(annuncio)
-         #app.logger.info(id[0])
-         success=posts_dao.mod_ann(annuncio,id)
+      elif par == 'mod':
+         btn=request.form.get('rimuoviFoto')
+         idAnn=request.form.get('idAnnuncio')
+         if btn != None:
+           #app.logger.info(btn)
+           return redirect(url_for('profilo',id=idAnn,foto=btn)) 
+         else:
+            id=posts_dao.get_id(annuncio)
+            success=posts_dao.mod_ann(annuncio,id)
+            file_paths=[]
+            if foto[0].filename=='':
+               lunFoto=0
+               file_paths=[]
+               #app.logger.info(lunFoto)
+            else:
+               lunFoto=len(foto)
+               #app.logger.info(lunFoto)
+               if lunFoto>5:
+                  raise Exception
+               else:
+                   #vettore per inserire tutte le foto di quell'annuncio e passarle al db
+                  for file in foto:
+                     file.save('static/img/'+file.filename)
+                     fileP='img/'+file.filename
+                     file_paths.append(fileP)
+            fotoList=request.form.get('fotoList')
+            fotoList_array= fotoList.split(',')
+                  #app.logger.info(len(fotoList_array))
+
+            numFotoTot=lunFoto+len(fotoList_array)
+            app.logger.info(numFotoTot)
+            if numFotoTot>5:
+               raise Exception
+            else:
+               app.logger.info("continua")
 
          #DA GESTIRE MODIFICA DELLE FOTO
          #success=posts_dao.mod_foto(file_paths,id[0])
@@ -198,31 +251,32 @@ def mod_ann(id):
    return redirect(url_for('profilo', id=id))
 
 
-@app.route('/rimuoviFoto/<int:id>', methods=['POST'])
+'''@app.route('/rimuoviFoto/<int:id>', methods=['POST'])
 @login_required
 def rimuovi_foto(id):
    foto=request.form['image_url']
    app.logger.info(foto)
-   success=posts_dao.remove_foto(foto,id)
+   #success=posts_dao.remove_foto(foto,id)
 
-   if success:
-      flash('Foto rimossa correttamente!', 'success')
-   else:
-      flash('Errore nella rimozione della foto','danger')
-   return redirect(url_for('profilo', id=id))
+   #if success:
+    #  flash('Foto rimossa correttamente!', 'success')
+   #else:
+    #  flash('Errore nella rimozione della foto','danger')
+   #return redirect(url_for('profilo', id=id))'''
+
+
 
 @app.route('/filtro', methods=['POST'])
 def filtro():
     info=request.form.get('selFiltro')
-    #app.logger.info(info)
     return redirect(url_for('index', info=info))
 
 #route per inizializzare campi input del form della prenotazione, parametro è idAnnuncio
 @app.route('/prenotazione/<int:id>', methods=['GET','POST'])
 @login_required
 def prenotazione(id):
-   idUtente=current_user.id
-   sol=posts_dao.get_prenotazioni(id, idUtente)
+   idUtente=current_user.id                         
+   sol=posts_dao.prenotazioni(id, idUtente)
    app.logger.info(sol)
    if sol == []:
       oggi=datetime.now().date()
@@ -236,7 +290,7 @@ def prenotazione(id):
       setteGiorniDopoForm = setteGiorniDopo.isoformat()
       return render_template('prenotazione.html', id=id, domani=domaniForm, setteGiorniDopo=setteGiorniDopoForm)
    else:
-      flash("Hai già fatto una richiesta di visita per questa casa! Attendi la conferma del locatore", 'danger')
+      flash("Hai già fatto una richiesta di visita per questa casa!", 'danger')
       return redirect(url_for('index'))
 
 #route per andare a prendere le fasce orarie a partire dalla data
@@ -249,9 +303,7 @@ def gestioneOra(id):
    setteGiorniDopoForm = setteGiorniDopo.isoformat()
 
    richiestaPren=request.form.to_dict()
-   #data=request.form.get('data')
-   #modVisita=request.form.get('modVisita')
-   
+
    if richiestaPren['data']:
    #come risultato tutte le ore di quel giorno già prese per quell'annuncio
       fasceOrNonDisp=posts_dao.gestioneOra(id, richiestaPren['data'])
@@ -281,24 +333,36 @@ def aggPrenotazione(id):
      
    else:
       flash('Errore nella richiesta della prenotazione!','danger')
-      #return render_template('prenotazione.html', id=id, domani=domaniForm, setteGiorniDopo=setteGiorniDopoForm)
    return redirect(url_for('index'))
 
 @app.route('/gestioneStatoRichiesta', methods=['POST'])
 def gestioneStatoRichiesta():
+   dati=request.form.to_dict()
    if 'btnRichiesta' in request.form:
       if request.form['btnRichiesta'] =='accetta':
-         dati=request.form.to_dict()
-         app.logger.info(dati['idAnnuncio'])
-         success=posts_dao.mod_richiesta(dati)
-         app.logger.info(success)
+         success=posts_dao.mod_richiesta(dati, 'accetta')
       else:
-         app.logger.info("rifiuta")
+         success=False
+         app.logger.info(dati['indiceRiga'])
 
       if success:
          flash("Visita accettata correttamente!", "success")
+         return redirect(url_for('profilo'))
+      else:
+         return redirect(url_for('profilo2', indice=dati['indiceRiga']))
+      
+@app.route('/rifiuto', methods=['POST'])
+def rifiuto():
+   dati=request.form.to_dict()
+   if dati['motivoRifiuto']==' ':
+      flash("E' obbligatorio inserire il motivo del rifiuto!",'danger')
+      return redirect(url_for('profilo2'))
+   else:
+      success=posts_dao.mod_richiesta(dati, 'rifiuta')
 
-      return redirect(url_for('profilo'))
+   if success:
+         flash("Visita rifiutata correttamente!", "success")
+         return redirect(url_for('profilo'))
 
 @login_manager.user_loader
 def load_user(user_id):

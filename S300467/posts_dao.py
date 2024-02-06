@@ -129,7 +129,7 @@ def get_singleAnnuncio(id):
            GROUP BY ANNUNCI.idAnnuncio'''
     cursor.execute(sql, (id,))
     annuncio= cursor.fetchone()  #vedere se meglio fetchone o fetchall
-    #print(annunci)
+    #print(annuncio['foto_concatenate'])
 
     cursor.close()
     conn.close()
@@ -300,7 +300,7 @@ def add_prenotazione(idAnnuncio, info):
     return success
 
 
-def get_prenotazioni(idAnnuncio, idUtente):
+def prenotazioni(idAnnuncio, idUtente):
     conn =sqlite3.connect('db/affitti.db')
     conn.row_factory = sqlite3.Row 
     cursor= conn.cursor()
@@ -315,41 +315,53 @@ def get_prenotazioni(idAnnuncio, idUtente):
 
     return sol
 
-def get_prenotazioni(id, tipo):
+def get_prenotazioniC(id):
     conn =sqlite3.connect('db/affitti.db')
     conn.row_factory = sqlite3.Row 
     cursor= conn.cursor()
 
-    if tipo=='cliente':
-        sql = '''SELECT  * FROM PRENOTAZIONI where idUtente = ?'''
-        cursor.execute(sql, (id,))
-        prenotazioni= cursor.fetchall()
-    elif tipo=='locatore':
-        sql='''SELECT  * FROM PRENOTAZIONI, ANNUNCI 
-            WHERE PRENOTAZIONI.idAnnuncio=ANNUNCI.idAnnuncio
-            AND ANNUNCI.idUtente=? '''
-        cursor.execute(sql, (id,))
-        prenotazioni=cursor.fetchall()
+    sql = 'SELECT  * FROM PRENOTAZIONI where idUtente = ?'
+    cursor.execute(sql, (id,))
+    prenotazioni= cursor.fetchall()
 
     cursor.close()
     conn.close()
 
     return prenotazioni
 
+def get_prenotazioniL(id):
+    conn =sqlite3.connect('db/affitti.db')
+    conn.row_factory = sqlite3.Row 
+    cursor= conn.cursor()
 
-def mod_richiesta(dati):
+    sql1='SELECT * FROM PRENOTAZIONI WHERE idUtente = ?'
+    sql2='SELECT PRENOTAZIONI.* FROM PRENOTAZIONI, ANNUNCI\
+          WHERE PRENOTAZIONI.idAnnuncio = ANNUNCI.idAnnuncio\
+          AND ANNUNCI.idUtente = ?'
+    result1 = cursor.execute(sql1, (id,)).fetchall()
+    result2 = cursor.execute(sql2, (id,)).fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return result1, result2
+
+#cambia in base a se il tipo è uguale ad accetta o rifiuta
+def mod_richiesta(dati, tipo):
     conn =sqlite3.connect('db/affitti.db')
     conn.row_factory = sqlite3.Row 
     cursor= conn.cursor()
     success=False
-    sql ='UPDATE PRENOTAZIONI SET stato=? WHERE idAnnuncio= ? AND Data=? AND fasciaOraria=? '
-    try:
+    if tipo=='accetta':
+        sql ='UPDATE PRENOTAZIONI SET stato=? WHERE idAnnuncio= ? AND Data=? AND fasciaOraria=? '
         cursor.execute(sql, ('accettata', dati['idAnnuncio'], dati['data'], dati['fasciaOraria']))
         conn.commit()
         success=True
-    except Exception as e:
-        print("ERROR",str(e))
-        conn.rollback()
+    else:
+        sql ='UPDATE PRENOTAZIONI SET stato=?, motivazioneRifiuto=? WHERE idAnnuncio= ? AND Data=? AND fasciaOraria=? '
+        cursor.execute(sql, ('rifiutata', dati['motivoRifiuto'], dati['idAnnuncio'], dati['data'], dati['fasciaOraria']))
+        conn.commit()
+        success=True
     
     cursor.close()
     conn.close()

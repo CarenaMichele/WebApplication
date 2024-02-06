@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Homepage{% endblock %}
 {% block liNav %}
-<li class="nav-item">
+  <li class="nav-item">
     <a class="nav-link mx-2" aria-current="page" href="{{url_for('index')}}">Home</a>
   </li>
   <li class="nav-item d-none d-lg-block">
@@ -10,17 +10,16 @@
     </a>
   </li>
   {% if current_user.is_authenticated %}
-  <li class="nav-item">
-    <a class="nav-link mx-2 active" href="#">Profilo</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link mx-2" href="{{url_for('logout')}}">Logout</a>
-  </li>
-  {% else %}
-  <li class="nav-item">
-    <a class="nav-link mx-2" href="{{url_for('Page_login')}}">Login</a>
-  </li>
-</li>
+    <li class="nav-item">
+      <a class="nav-link mx-2 active" href="#">Profilo</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link mx-2" href="{{url_for('logout')}}">Logout</a>
+    </li>
+    {% else %}
+    <li class="nav-item">
+      <a class="nav-link mx-2" href="{{url_for('Page_login')}}">Login</a>
+    </li>
   {% endif %}
 {% endblock %}
 
@@ -31,7 +30,7 @@
             {% if annuncio %} 
             <!--usato per modifica dell'annuncio. Se vero ==> form di modifica
             Se falso ==> form di aggiunta-->
-            <form action="/Ann/mod" method="POST" enctype="multipart/form-data">
+          <form action="/Ann/mod" method="POST" enctype="multipart/form-data">
               <div class="form-group">
                   <h4>Modifica un Annuncio!</h4>
                   <label for="titolo">Titolo</label>
@@ -101,15 +100,18 @@
                   <!--Quindi il locatore sarà obbligato a reinserire le foto-->
                   <br>
                   {% set foto_list = annuncio.foto_concatenate.split(',') %}
-                  {% for foto in foto_list %}
-                    <div class="foto-container">
-                      <form action="/rimuoviFoto/{{annuncio.idAnnuncio}}" method="POST" enctype="multipart/form-data">
-                        <img src="{{ url_for('static', filename=foto) }}" alt="Foto" class="fotoAnnunci">
-                        <input type="hidden" name="image_url" value="{{foto}}">
-                        <button type="submit" class="btn btn-danger">Rimuovi</button>
-                      </form>
-                    </div>
-                  {% endfor %}
+                  <input type="hidden" name="fotoList" value="{{ foto_list }}">
+                  {%if foto_list != [''] %}
+                    {% for foto in foto_list %}
+                      <div class="foto-container">
+                          <!--<form action="/rimuoviFoto/{{ annuncio.idAnnuncio }}" method="POST" enctype="multipart/form-data">-->
+                              <img src="{{ url_for('static', filename=foto) }}" alt="Foto" class="fotoAnnunci">
+                              <input type="hidden" name="idAnnuncio" value="{{ annuncio.idAnnuncio }}">
+                              <button type="submit" class="btn btn-danger" name="rimuoviFoto" value="{{ foto }}">Rimuovi</button>
+                          <!--</form>-->
+                      </div>
+                    {% endfor %}
+                  {%endif%}
               </div>
               <br>
               <div class="form-group mb-3">
@@ -140,78 +142,78 @@
                 </div>
             </form>
           {% else %}
-          <!--form per aggiungere annuncio-->
-          <form action="/Ann/new" method="POST" enctype="multipart/form-data">
-              <div class="form-group">
-                  <h4>Aggiungi un Annuncio!</h4>
-                  <label for="titolo">Titolo</label>
-                  <input type="text" name="titolo" class="form-control" required>
-              </div>
-              <div class="form-group">
-                <label for="indirizzo">Indirizzo</label>
-                <input type="text" name="indirizzo" class="form-control" required>
-              </div>
-              <div class="form-group">
-                <label for="tipoC">Tipo Casa</label>
-                <select class="form-control" name="tipoC" required>
-                  <option name="tipoC"></option>
-                  <option name="tipoC">casa indipendente</option>
-                  <option name="tipoC">appartamento</option>
-                  <option name="tipoC">loft</option>
-                  <option name="tipoC">villa</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="numLocali">Numero Locali</label>
-                <select class="form-control" name="numLocali" required>
-                  <option name="numLocali"></option>
-                  <option name="numLocali">1</option>
-                  <option name="numLocali">2</option>
-                  <option name="numLocali">3</option>
-                  <option name="numLocali">4</option>
-                  <option name="numLocali">5+</option>
-                </select>
-              </div>
-              <div class="form-group">
-                  <label for="descrizione">Descrizione</label>
-                  <textarea name="descrizione" msg cols="30" rows="5" class="form-control" required></textarea>
-              </div>
-              <div class="form-group">
-                <label for="prezzoM">Prezzo Mensile</label>
-                <input type="number" name="prezzoM" class="form-control" value="500" min="100" max="2500" step="50" required> <!--TODO-->
-              </div>
-              <br>
-              <div class="form-group mb-3">
-                <label for="divArredato">Arredamento</label>
-                <div class="form-check form-check-inline" id="divArredato">
-                    <input type="radio" class="form-check-input" id="rad1" name="arredato" value="SI" checked>SI                                        
-                    <label class="form-check-label" for="rad1"></label>
+            <!--form per aggiungere annuncio-->
+            <form action="/Ann/new" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <h4>Aggiungi un Annuncio!</h4>
+                    <label for="titolo">Titolo</label>
+                    <input type="text" name="titolo" class="form-control" required>
                 </div>
-                <div class="form-check form-check-inline">
-                    <input type="radio" class="form-check-input" id="rad2" name="arredato" value="NO">NO
-                    <label class="form-check-label" for="rad2"></label>
+                <div class="form-group">
+                  <label for="indirizzo">Indirizzo</label>
+                  <input type="text" name="indirizzo" class="form-control" required>
                 </div>
-              </div>
-              <div class="form-group">
-                  <label for="imgCommento" class="form-label">Aggiungi da 1 a 5 fotografie dell'appartamento</label>
-                  <input class="form-control" type="file" name="imgAnnuncio" multiple required> <!--attributo multiple utilizzato per selezionare più file in una volta sola-->
-              </div>
-              <br>
-              <div class="form-group mb-3">
-                <label for="divDisponibile">Disponibile</label>
-                <div class="form-check form-check-inline" id="divDisponibile">
-                    <input type="radio" class="form-check-input" id="radD1" name="disponibile" value="SI" checked>SI                                        
-                    <label class="form-check-label" for="radD1"></label>
+                <div class="form-group">
+                  <label for="tipoC">Tipo Casa</label>
+                  <select class="form-control" name="tipoC" required>
+                    <option name="tipoC"></option>
+                    <option name="tipoC">casa indipendente</option>
+                    <option name="tipoC">appartamento</option>
+                    <option name="tipoC">loft</option>
+                    <option name="tipoC">villa</option>
+                  </select>
                 </div>
-                <div class="form-check form-check-inline">
-                    <input type="radio" class="form-check-input" id="radD2" name="disponibile" value="NO">NO
-                    <label class="form-check-label" for="radD2"></label>
+                <div class="form-group">
+                  <label for="numLocali">Numero Locali</label>
+                  <select class="form-control" name="numLocali" required>
+                    <option name="numLocali"></option>
+                    <option name="numLocali">1</option>
+                    <option name="numLocali">2</option>
+                    <option name="numLocali">3</option>
+                    <option name="numLocali">4</option>
+                    <option name="numLocali">5+</option>
+                  </select>
                 </div>
-              </div>
-              <div class="form-group">
-                  <button type="submit" id="annuncio" class="btn btn-success">Aggiungi Annuncio</button>
-              </div>
-          </form>
+                <div class="form-group">
+                    <label for="descrizione">Descrizione</label>
+                    <textarea name="descrizione" msg cols="30" rows="5" class="form-control" required></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="prezzoM">Prezzo Mensile</label>
+                  <input type="number" name="prezzoM" class="form-control" value="500" min="100" max="2500" step="50" required> <!--TODO-->
+                </div>
+                <br>
+                <div class="form-group mb-3">
+                  <label for="divArredato">Arredamento</label>
+                  <div class="form-check form-check-inline" id="divArredato">
+                      <input type="radio" class="form-check-input" id="rad1" name="arredato" value="SI" checked>SI                                        
+                      <label class="form-check-label" for="rad1"></label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                      <input type="radio" class="form-check-input" id="rad2" name="arredato" value="NO">NO
+                      <label class="form-check-label" for="rad2"></label>
+                  </div>
+                </div>
+                <div class="form-group">
+                    <label for="imgCommento" class="form-label">Aggiungi da 1 a 5 fotografie dell'appartamento</label>
+                    <input class="form-control" type="file" name="imgAnnuncio" multiple required> <!--attributo multiple utilizzato per selezionare più file in una volta sola-->
+                </div>
+                <br>
+                <div class="form-group mb-3">
+                  <label for="divDisponibile">Disponibile</label>
+                  <div class="form-check form-check-inline" id="divDisponibile">
+                      <input type="radio" class="form-check-input" id="radD1" name="disponibile" value="SI" checked>SI                                        
+                      <label class="form-check-label" for="radD1"></label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                      <input type="radio" class="form-check-input" id="radD2" name="disponibile" value="NO">NO
+                      <label class="form-check-label" for="radD2"></label>
+                  </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" id="annuncio" class="btn btn-success">Aggiungi Annuncio</button>
+                </div>
+            </form>
           {% endif %} 
 
       {% endif %}
@@ -233,18 +235,18 @@
           </thead>
           <tbody>
             {% for ann in annunci %}
-            <tr>
-              <th scope="row">{{ann.titolo}}</th>
-              <td>{{ann.indirizzo}}</td>
-              <td>{{ann.tipoCasa}}</td>
-              <td>{{ann.prezzoMensile}}</td>
-              <td>{{ann.disponibilita}}</td>
-              <td>
-                <form action="/modificaAnn/{{ann.idAnnuncio}}" method="POST">
-                  <button type="submit" class="btn btn-danger">MODIFICA</button>
-                </form>
-              </td>
-            </tr>
+              <tr>
+                <th scope="row">{{ann.titolo}}</th>
+                <td>{{ann.indirizzo}}</td>
+                <td>{{ann.tipoCasa}}</td>
+                <td>{{ann.prezzoMensile}}</td>
+                <td>{{ann.disponibilita}}</td>
+                <td>
+                  <form action="/modificaAnn/{{ann.idAnnuncio}}" method="POST">
+                    <button type="submit" class="btn btn-danger">MODIFICA</button>
+                  </form>
+                </td>
+              </tr>
             {% endfor %}
           </tbody>
         </table>
@@ -263,34 +265,94 @@
               <th scope="col">fascia Oraria</th>
               <th scope="col">stato</th>
               <th scope="col"></th>
+              <th scope="col"></th>
+              <th></th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            {% for pren in prenotazioni %}
-              <tr>
-              <form action="/gestioneStatoRichiesta" method="POST">
-                <td><input type="hidden" name="idAnnuncio" value="{{pren.idAnnuncio}}">{{pren.idAnnuncio}}</th>
-                <td><input type="hidden" name="data" value="{{pren.Data}}">{{pren.Data}}</td>
-                <td>{{pren.tipoVisita}}</td>
-                <td><input type="hidden" name="fasciaOraria" value="{{pren.fasciaOraria}}">{{pren.fasciaOraria}}</td>
-                <td>{{pren.stato}}</td>
-                {% if pren.stato == 'richiesta' %}
-                <td><button type="submit" class="btn btn-success" name="btnRichiesta" value="accetta">ACCETTA</button></td>
-              </form>
-                    <!--<form method="POST" action='/rifiuto'>-->
-                      <td><button class="btn btn-danger" name="btnRichiesta" value="rifiuta">RIFIUTA</button></td>
-                    <!--</form>-->
-                  </td>
-                {% endif %}
-
-              </tr>
+            {% for pren in prenotazioniL2 %}
+              {% if pren.idUtente != current_user.id %}
+                <tr>
+                  {% if pren.stato == 'richiesta' %}
+                    <form action="/gestioneStatoRichiesta" method="POST">
+                      <input type="hidden" name="idAnnuncio" value="{{pren.idAnnuncio}}">
+                      <input type="hidden" name="data" value="{{pren.Data}}">
+                      <input type="hidden" name="fasciaOraria" value="{{pren.fasciaOraria}}">
+                  {%endif%}
+                    <td>{{pren.idAnnuncio}}</td>
+                    <td>{{pren.Data}}</td>
+                    <td>{{pren.tipoVisita}}</td> <!--uso campo hidden per passare al server l'indice che indica la riga selezionata della tabella-->
+                    <td>{{pren.fasciaOraria}}</td>
+                    <td>{{pren.stato}}</td>
+                  {% if pren.stato == 'richiesta' %}
+                    <td>
+                      <input type="hidden" name="indiceRiga" value="{{loop.index}}">
+                      <button type="submit" class="btn btn-success" name="btnRichiesta" value="accetta">ACCETTA</button>
+                        <!--<form method="POST" action='/rifiuto'>-->
+                      <button type="submit" class="btn btn-danger" name="btnRichiesta" value="rifiuta">RIFIUTA</button>
+                        <!--</form>-->
+                    </td>
+                  </form>
+                    {%if rifiuto == loop.index %}
+                      <form method="POST" action="/rifiuto">
+                        <td><input type="hidden" name="idAnnuncio" value="{{pren.idAnnuncio}}"></td>
+                        <td><input type="hidden" name="data" value="{{pren.Data}}"></td>
+                        <td><input type="hidden" name="fasciaOraria" value="{{pren.fasciaOraria}}"></td>
+                        <td>
+                          <div class="form-group">
+                            <input type="text" name="motivoRifiuto" class="form-control" placeholder="Motivo del rifiuto" required autofocus>
+                          </div>
+                        </td>
+                        <td><button type="submit" class="btn btn-primary" name="btnRifiuto" value="inviaRifiuto">INVIA RIFIUTO</button></td>
+                      </form>
+                    {% endif %}
+                  {% endif %}
+                </tr>
+              {% endif %}
             {% endfor %}
           </tbody>
         </table>
     </div>
-    <!--profilo cliente-->
+
+    <div class="row">
+      <h4>Elenco Prenotazioni</h4>
+    </div>
+      <div style="background-color: #e7effd;">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">Data</th>
+              <th scope="col">tipo Visita</th>
+              <th scope="col">fascia Oraria</th>
+              <th scope="col">stato</th>
+              <th scope="col">motivazione Rifiuto</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for pren in prenotazioniL1 %}
+              {% if pren.idUtente == current_user.id %}
+              <tr>
+                <th scope="row">{{pren.Data}}</th>
+                <td>{{pren.tipoVisita}}</td>
+                <td>{{pren.fasciaOraria}}</td>
+                <td>{{pren.stato}}</td>
+                {% if pren.motivazioneRifiuto is not none %}
+                  <td>{{pren.motivazioneRifiuto}}</td>
+                {% else %}
+                  <td></td>
+                {% endif%}
+              </tr>
+              {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
   {% else %}
+    <!--profilo cliente-->
+    <div class="row">
+      <h4>Elenco Prenotazioni</h4>
+    </div>
     <div style="background-color: #e7effd;">
       <table class="table table-striped">
         <thead>
@@ -310,14 +372,14 @@
               <td>{{pren.fasciaOraria}}</td>
               <td>{{pren.stato}}</td>
               {% if pren.motivazioneRifiuto is not none %}
-              <td>{{pren.motivazioneRifiuto}}</td>
+                <td>{{pren.motivazioneRifiuto}}</td>
               {% else %}
-              <td></td>
+                <td></td>
               {% endif%}
             </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
-  {% endif %}
+  {%endif%}
 {% endblock %}
