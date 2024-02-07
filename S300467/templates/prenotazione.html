@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Homepage{% endblock %}
+{% block title %}Prenotazione{% endblock %}
 {% block liNav %}
   <li class="nav-item">
     <a class="nav-link mx-2" aria-current="page" href="{{url_for('index')}}">Home</a>
@@ -42,7 +42,7 @@
                   <input type="date" class="form-control" name="data" min="{{domani}}" max="{{setteGiorniDopo}}">
                 </div>
                 <div class="col-4">
-                  <button type="submit" class="btn btn-primary">Cerca</button>
+                  <button type="submit" class="btn buttonPrenotazione">Cerca</button>
                 </div>
               </div>
             </form>
