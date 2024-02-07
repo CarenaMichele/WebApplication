@@ -1,5 +1,18 @@
 .nav-item {
-    line-height:80px;
+    line-height:50px;
+}
+
+body {
+  background-color: #f0ebcc;  /*#e0dcb4*/
+}
+
+.login-container {
+  position: fixed;
+}
+
+.headerNav{
+  background-color: #e0dcb4;
+  color: black;
 }
 
 .login,
@@ -8,9 +21,40 @@
 }
 
 .bg-image {
-  background-image: url('https://bootstrapious.com/i/snippets/sn-page-split/bg.jpg');
+  background-image: url('/static/img/fotoLogin.jpg');
   background-size: cover;
   background-position: center center;
+  background-size: cover;
+  /*image-rendering: -webkit-optimize-contrast; 
+  image-rendering: optimizeQuality;*/
+}
+
+.inputLogin{
+  border: none;
+  padding-left: 1.5rem; /* Regola il valore px-4 in base alle tue esigenze */
+  padding-right: 1.5rem; 
+}
+
+.buttonLogin{
+  text-transform: uppercase; /* Per ottenere lo stesso effetto di text-uppercase */
+  margin-bottom: 2rem; 
+  background-color: #e0dcb4;
+}
+
+.buttonLogin:hover {
+  background-color: transparent;
+}
+
+.buttonLogin2{
+  text-transform: uppercase; /* Per ottenere lo stesso effetto di text-uppercase */
+  margin-bottom: 2rem; 
+  background-color: transparent; 
+  border: 2px solid #e0dcb4;
+  color: black;
+}
+
+.backFormLogin{
+  background-color: #f9f7e1;
 }
 
 .fotoAnnunci{
@@ -34,4 +78,147 @@
 
 .inputHidden{
   display: none;
+}
+
+.filtroButton{
+  border: none;
+}
+
+.buttonOrdina{
+  text-transform: uppercase; 
+  background-color: #e0dcb4;
+}
+
+.cardFoto{
+  height: 300px;
+}
+
+.buttonInformazioni{
+  background-color: #e0dcb4;
+}
+
+.buttonInformazioni2{
+  background-color: transparent;
+  border: 2px solid #e0dcb4;
+  color: black;
+}
+
+.card-title{
+  color: #6c757d;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.prezzoM{
+  font-size: 1.5rem;
+  margin-bottom: 2px;
+  font-weight: bold;
+}
+
+.card-subtitle{
+  color:darkgray;
+  margin-bottom: 30px;
+  font-size: 1rem;
+}
+
+.proprietario{
+  color: black;
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+}
+
+.infoProprietario{
+  margin-left: 50px;
+}
+
+.buttonInformazioniM{
+  float: right;
+  background-color: #e0dcb4;
+}
+
+.infoSecondarie{
+  font-size: 1em;
+}
+
+.containerDefault{
+  background-color: white;
+  padding: 2rem;
+  margin-top: 2rem;
+  border-radius: 10px;
+}
+
+.buttonPrenotazione{
+  background-color: #e0dcb4;
+}
+
+.buttonAccRichiesta{
+  background-color: #e0dcb4;
+}
+
+.buttonRifRichiesta{
+  background-color: transparent;
+  border: 2px solid #e0dcb4;
+  color: black;
+}
+
+.buttonInviaRifiuto{
+  background-color: #e0dcb4;
+}
+
+#buttonAggAnnuncio{
+  background-color: #e0dcb4;
+}
+
+.buttonModifica{
+  background-color: #e0dcb4;
+}
+
+.buttonPrenotazione2{
+  background-color: transparent;
+  border: 2px solid #e0dcb4;
+  color: black;
+}
+
+.buttonRimuovi{
+  background-color: transparent;
+  border: 2px solid #e0dcb4;
+  color: black;
+}
+
+
+
+td{
+  vertical-align: middle;
+}
+
+.campiNascosti{
+  display: none;
+}
+
+.largerTd{
+  table-layout: auto;
+}
+
+.tdData{
+  width: 100px;
+}
+
+.tdAeR{
+  width: 200px;
+}
+
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Specifica che ci saranno 3 colonne (3 è il numero di colonne) e che ognuna di esse avrà la stessa larghezza. */
+  /*1fr: Indica che ogni colonna avrà una frazione dello spazio disponibile. In questo caso, tutte e tre le colonne avranno la stessa frazione dello spazio disponibile*/
+  gap: 10px; /* Spaziatura tra le immagini */
+}
+
+.grid-image {
+  width: 100%;
+  height: 200px; 
+  border-radius: 8px;
 }

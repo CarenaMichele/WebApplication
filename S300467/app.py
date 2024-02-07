@@ -259,20 +259,6 @@ def mod_ann(id):
    return redirect(url_for('profilo', id=id))
 
 
-'''@app.route('/rimuoviFoto/<int:id>', methods=['POST'])
-@login_required
-def rimuovi_foto(id):
-   foto=request.form['image_url']
-   app.logger.info(foto)
-   #success=posts_dao.remove_foto(foto,id)
-
-   #if success:
-    #  flash('Foto rimossa correttamente!', 'success')
-   #else:
-    #  flash('Errore nella rimozione della foto','danger')
-   #return redirect(url_for('profilo', id=id))'''
-
-
 
 @app.route('/filtro', methods=['POST'])
 def filtro():

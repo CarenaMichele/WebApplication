@@ -1,6 +1,7 @@
+<!DOCTYPE html>
 <html lang="it">
     <head>
-        <meta charset="utf-8">  <!-- il contenuto della pagina avrà un set di caratteri utf-8 --> 
+        <meta charset="utf-8">
         <meta name="keywords" content="web, blog, html, css">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>IAW-{% block title %}{% endblock %}</title>
@@ -9,16 +10,11 @@
     </head>
     <body>
         <!-- Navbar -->
-        <nav class="navbar navbar-expand-lg navbar-dark p-3 bg-danger" id="headerNav">
+        <nav class="navbar navbar-expand-lg p-3 headerNav ">
           <div class="container-fluid">
-            <a class="navbar-brand d-block d-lg-none" href="#">
-              <img src="/static_files/images/logos/logo_2_white.png" height="80" />
-            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
             </button>
-  
-        
             <div class="collapse navbar-collapse" id="navbarNavDropdown">
               <ul class="navbar-nav mx-auto ">
                 {% block liNav %}{% endblock %}
@@ -30,6 +26,7 @@
 
         {% with messages = get_flashed_messages(with_categories=true) %}
               {% if messages %}
+              <meta http-equiv="refresh" content="2;url={{ request.path }}">
                 {% for category, message in messages %}
                      <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
                           {% if category == "danger" %}

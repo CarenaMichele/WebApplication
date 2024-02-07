@@ -1,42 +1,34 @@
 {% extends "base.html" %}
 {% block title %}Login{% endblock %}
 {% block liNav %}
-<li class="nav-item">
-    <a class="nav-link mx-2 active" aria-current="page" href="{{url_for('index')}}">Home</a>
-  </li>
-  <li class="nav-item d-none d-lg-block">
-    <a class="nav-link mx-2" href="#">
-      <img src="/static_files/images/logos/logo_2_white.png" height="80" />
-    </a>
-  </li>
+    <li class="nav-item">
+        <a class="nav-link mx-2" aria-current="page" href="{{url_for('index')}}">Home</a>
+    </li>
 {% endblock %}
 {% block content %}  
 
-<div class="container-fluid">
+<div class="container-fluid login-container">
     <div class="row no-gutter">
-        <!-- The image half -->
         <div class="col-md-6 d-none d-md-flex bg-image"></div>
-        <!-- The content half -->
-        <div class="col-md-6 bg-light">
+        <div class="col-md-6 backFormLogin">
             <div class="login d-flex align-items-center py-5">
-                <!-- Demo content-->
                 <div class="container">
                     <div class="row">
                         <div class="col-lg-10 col-xl-7 mx-auto">
-                            <h3 class="display-4">Split page!</h3>
-                            <p class="text-muted mb-4">Create a login split page using Bootstrap 4.</p>
+                            <h3 class="display-4">Registrazione</h3>
+                            <p class="text-muted mb-4">Registrati per accedere al nostro servizio</p>
                             <form class="form" action="/signup" method="POST">
                                 <div class="form-group mb-3">
-                                    <input name="nome" type="text" placeholder="Nome" required="" autofocus="" class="form-control rounded-pill border-0 shadow-sm px-4">
+                                    <input name="nome" type="text" placeholder="Nome" required="" autofocus="" class="form-control shadow-sm rounded-pill inputLogin">
                                 </div>
                                 <div class="form-group mb-3">
-                                    <input name="cognome" type="text" placeholder="Cognome" required="" class="form-control rounded-pill border-0 shadow-sm px-4">
+                                    <input name="cognome" type="text" placeholder="Cognome" required="" class="form-control shadow-sm rounded-pill inputLogin">
                                 </div>
                                 <div class="form-group mb-3">
-                                    <input name="username" type="text" placeholder="Username" required="" class="form-control rounded-pill border-0 shadow-sm px-4">
+                                    <input name="username" type="text" placeholder="Username" required="" class="form-control shadow-sm rounded-pill inputLogin">
                                 </div>
                                 <div class="form-group mb-3">
-                                    <input name="password" type="password" placeholder="Password" required="" class="form-control rounded-pill border-0 shadow-sm px-4 text-primary">
+                                    <input name="password" type="password" placeholder="Password" required="" class="form-control shadow-sm rounded-pill inputLogin">
                                 </div>
                                 <div class="form-group mb-3 tipo">
                                     <div class="form-check form-check-inline">
@@ -48,15 +40,14 @@
                                         <label class="form-check-label" for="radio2"></label>
                                     </div>
                                 </div>
-                                <button type="submit" class="btn btn-primary btn-block text-uppercase mb-2 rounded-pill shadow-sm">SIGN UP</button>
-                                <a href="{{url_for('Page_login')}}" class="btn btn-outline-primary btn-block text-uppercase mb-2 rounded-pill shadow-sm">GO BACK</a>
+                                <button type="submit" class="btn shadow-sm buttonLogin">SIGN UP</button>
+                                <a href="{{url_for('Page_login')}}" class="btn shadow-sm buttonLogin2">GO BACK</a>
                             </form>
                         </div>
                     </div>
-                </div><!-- End -->
+                </div>
             </div>
-        </div><!-- End -->
+        </div>
     </div>
 </div>
-
 {% endblock %}

@@ -1,16 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Homepage{% endblock %}
 {% block liNav %}
-<li class="nav-item">
+  <li class="nav-item">
     <a class="nav-link mx-2" aria-current="page" href="{{url_for('index')}}">Home</a>
   </li>
-  <li class="nav-item d-none d-lg-block">
-    <a class="nav-link mx-2" href="#">
-      <img src="/static_files/images/logos/logo_2_white.png" height="80" />
-    </a>
-  </li>
   <li class="nav-item">
-    <a class="nav-link mx-2" href="#">Profilo</a>
+    <a class="nav-link mx-2" href="{{url_for('profilo')}}">Profilo</a>
   </li>
   {% if current_user.is_authenticated %}
   <li class="nav-item">
@@ -20,12 +15,11 @@
   <li class="nav-item">
     <a class="nav-link mx-2" href="{{url_for('Page_login')}}">Login</a>
   </li>
-</li>
   {% endif %}
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-5">
+<div class="container containerDefault">
     {% if current_user.is_authenticated %}
           {%if orari is not defined %}
         <!--<form action="" method="POST" enctype="multipart/form-data">-->
@@ -42,14 +36,18 @@
                       <label class="form-check-label"></label>
                   </div>
               </div>
-              <div class="form-group">
-                <label for="data">Seleziona una data (nei 7 giorni seguenti la data odierna):</label>
-                <input type="date" class="form-control" name="data" min="{{domani}}" max="{{setteGiorniDopo}}">
-                <button type="submit" class="btn btn-primary">Cerca</button>
+              <label for="data">Seleziona una data (nei 7 giorni seguenti la data odierna):</label>
+              <div class="form-group row">
+                <div class="col-8">
+                  <input type="date" class="form-control" name="data" min="{{domani}}" max="{{setteGiorniDopo}}">
+                </div>
+                <div class="col-4">
+                  <button type="submit" class="btn btn-primary">Cerca</button>
+                </div>
               </div>
             </form>
             <div class="form-group mt-4">
-              <a href="{{url_for('index')}}" class="btn btn-success">Annulla Prenotazione</a>
+              <a href="{{url_for('index')}}" class="btn buttonPrenotazione">Annulla Prenotazione</a>
           </div>
           {% else %}
             <h4 class="mb-4">Prenota una visita!</h4>
@@ -57,7 +55,7 @@
               <!--<input type="text" name="idUtente" value="{{current_user.id}}" hidden>-->
               <div class="form-group mb-3">
                   <label for="divDisponibile">Modalità visita:</label>
-                  {% if richiesta.modVisita == 'PERSONA' %}
+                  {% if richiesta.modVisita == 'persona' %}
                   <div class="form-check form-check-inline">
                       <input type="radio" class="form-check-input" name="modVisita" value="persona" checked>DI PERSONA                                      
                       <label class="form-check-label"></label>
@@ -77,11 +75,11 @@
                   </div>
                   {%endif%}
               </div>
-              <div class="form-group">
+              <div class="form-group col-8">
                 <label for="data">Seleziona una data (nei 7 giorni seguenti la data odierna):</label>
                 <input type="date" class="form-control grigioChiaro" name="data" min="{{domani}}" max="{{setteGiorniDopo}}" value="{{richiesta.data}}" readonly>
               </div>
-              <div class="form-group">
+              <div class="form-group col-8">
                 <label for="fasciaOraria">Fascia Oraria</label>
                 <select class="form-control" name="fasciaOraria" required>
                   <option></option>
@@ -96,12 +94,11 @@
                         <option value="{{ fasciaO}}">{{ fasciaO }}</option>
                     {% endif %}
                   {% endfor %}
-                  
                 </select>
               </div>
               <div class="form-group mt-4">
-                  <button type="submit" class="btn btn-success">Aggiungi Prenotazione</button>
-                  <a href="{{url_for('prenotazione', id=id)}}" class="btn btn-outline-success">Torna Indietro</a>
+                  <button type="submit" class="btn buttonPrenotazione">Aggiungi Prenotazione</button>
+                  <a href="{{url_for('prenotazione', id=id)}}" class="btn buttonPrenotazione2">Torna Indietro</a>
               </div>
             </form>
             {% endif %}

@@ -181,33 +181,6 @@ def mod_foto(foto,id):
 
     return success
 
-'''def mod_foto(foto, id):
-    conn=sqlite3.connect('db/affitti.db')
-    conn.row_factory=sqlite3.Row
-    cursor=conn.cursor()
-    success=False
-    #vado a prendere tutte le foto presenti nel db di quel annuncio
-    try:
-        sql='SELECT urlFoto FROM FOTO WHERE idAnnuncio=?'
-        cursor.execute(sql, (id,))
-        listaFoto= cursor.fetchall()
-        #print(listaFoto)
-        success=True
-
-        #for i in listaFoto:
-         #   print(listaFoto[i])
-
-        
-    except sqlite3.Error as e:
-        print("errore:", e)
-        conn.rollback()
-
-    cursor.close()
-    conn.close()
-    return success'''
-
-    
-
 def get_id(annuncio):
     conn =sqlite3.connect('db/affitti.db')
     conn.row_factory = sqlite3.Row 
@@ -248,15 +221,15 @@ def ordina(info):
     cursor= conn.cursor()
 
     if info == 'numLocali':
-        sql = '''SELECT ANNUNCI.* ,GROUP_CONCAT(urlFoto, ',') AS foto_concatenate 
-            FROM ANNUNCI, FOTO 
-            where ANNUNCI.idAnnuncio = FOTO.idAnnuncio and ANNUNCI.disponibilita = 'SI' and FOTO.rimosso='FALSE'
+        sql = '''SELECT ANNUNCI.* ,GROUP_CONCAT(urlFoto, ',') AS foto_concatenate, UTENTI.nome, UTENTI.cognome
+            FROM ANNUNCI, FOTO, UTENTI
+            where ANNUNCI.idAnnuncio = FOTO.idAnnuncio and ANNUNCI.disponibilita = 'SI' and UTENTI.idUtente=ANNUNCI.idUtente and FOTO.rimosso='FALSE'
             GROUP BY ANNUNCI.idAnnuncio
             ORDER BY ANNUNCI.numeroLocali ASC, ANNUNCI.PrezzoMensile DESC'''
     else:
-        sql = '''SELECT ANNUNCI.* ,GROUP_CONCAT(urlFoto, ',') AS foto_concatenate 
-            FROM ANNUNCI, FOTO 
-            where ANNUNCI.idAnnuncio = FOTO.idAnnuncio and ANNUNCI.disponibilita = 'SI' and FOTO.rimosso='FALSE'
+        sql = '''SELECT ANNUNCI.* ,GROUP_CONCAT(urlFoto, ',') AS foto_concatenate, UTENTI.nome, UTENTI.cognome
+            FROM ANNUNCI, FOTO, UTENTI
+            where ANNUNCI.idAnnuncio = FOTO.idAnnuncio and ANNUNCI.disponibilita = 'SI' and UTENTI.idUtente=ANNUNCI.idUtente and FOTO.rimosso='FALSE'
             GROUP BY ANNUNCI.idAnnuncio
             ORDER BY ANNUNCI.prezzoMensile DESC, ANNUNCI.numeroLocali ASC'''
     cursor.execute(sql, ())
@@ -327,7 +300,10 @@ def get_prenotazioniC(id):
     conn.row_factory = sqlite3.Row 
     cursor= conn.cursor()
 
-    sql = 'SELECT  * FROM PRENOTAZIONI where idUtente = ?'
+    sql = 'SELECT PRENOTAZIONI.*, ANNUNCI.titolo \
+            FROM PRENOTAZIONI, ANNUNCI\
+            WHERE PRENOTAZIONI.idAnnuncio=ANNUNCI.idAnnuncio \
+            AND PRENOTAZIONI.idUtente = ?'
     cursor.execute(sql, (id,))
     prenotazioni= cursor.fetchall()
 
@@ -341,10 +317,14 @@ def get_prenotazioniL(id):
     conn.row_factory = sqlite3.Row 
     cursor= conn.cursor()
 
-    sql1='SELECT * FROM PRENOTAZIONI WHERE idUtente = ?'
-    sql2='SELECT PRENOTAZIONI.* FROM PRENOTAZIONI, ANNUNCI\
-          WHERE PRENOTAZIONI.idAnnuncio = ANNUNCI.idAnnuncio\
-          AND ANNUNCI.idUtente = ?'
+    sql1='SELECT PRENOTAZIONI.*, ANNUNCI.titolo \
+            FROM PRENOTAZIONI, ANNUNCI\
+            WHERE PRENOTAZIONI.idAnnuncio=ANNUNCI.idAnnuncio \
+            AND PRENOTAZIONI.idUtente = ?'
+    sql2='SELECT PRENOTAZIONI.*, ANNUNCI.titolo \
+            FROM PRENOTAZIONI, ANNUNCI\
+            WHERE PRENOTAZIONI.idAnnuncio = ANNUNCI.idAnnuncio\
+            AND ANNUNCI.idUtente = ?'
     result1 = cursor.execute(sql1, (id,)).fetchall()
     result2 = cursor.execute(sql2, (id,)).fetchall()
 

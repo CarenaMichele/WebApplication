@@ -4,11 +4,6 @@
   <li class="nav-item">
     <a class="nav-link mx-2" aria-current="page" href="{{url_for('index')}}">Home</a>
   </li>
-  <li class="nav-item d-none d-lg-block">
-    <a class="nav-link mx-2" href="#">
-      <img src="/static_files/images/logos/logo_2_white.png" height="80" />
-    </a>
-  </li>
   {% if current_user.is_authenticated %}
     <li class="nav-item">
       <a class="nav-link mx-2 active" href="#">Profilo</a>
@@ -25,16 +20,148 @@
 
 {% block content %}
   {% if current_user.tipo == 'locatore' %}
-    <div class="container-fluid mt-5">
+    <div class="container containerDefault">
+      <h4>Richieste di Visita per i tuoi annunci</h4>
+      <div style="background-color: #e7effd;">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">Annuncio</th>
+                <th scope="col">Data</th>
+                <th scope="col">tipo Visita</th>
+                <th scope="col">fascia Oraria</th>
+                <th scope="col">stato</th>
+                <th scope="col" colspan="3"></th>  <!--per rimuovere il buco-->
+              </tr>
+            </thead>
+            <tbody>
+              {% for pren in prenotazioniL2 %}
+                {% if pren.idUtente != current_user.id %}
+                  <tr>
+                    {% if pren.stato == 'richiesta' %}
+                      <form action="/gestioneStatoRichiesta" method="POST">
+                        <input class="campiNascosti" type="hidden" name="idAnnuncio" value="{{pren.idAnnuncio}}">
+                        <input class="campiNascosti" type="hidden" name="data" value="{{pren.Data}}">
+                        <input class="campiNascosti" type="hidden" name="fasciaOraria" value="{{pren.fasciaOraria}}">
+                    {%endif%}
+                      <th scope="row">{{pren.titolo}}</th>
+                      <td class="tdData">{{pren.Data}}</td>
+                      <td>{{pren.tipoVisita}}</td> <!--uso campo hidden per passare al server l'indice che indica la riga selezionata della tabella-->
+                      <td>{{pren.fasciaOraria}}</td>
+                      <td>{{pren.stato}}</td>
+                    {% if pren.stato == 'richiesta' %}
+                      <td class="tdAeR">
+                        <input  type="hidden" name="indiceRiga" value="{{loop.index}}">
+                        <button type="submit" class="btn buttonAccRichiesta" name="btnRichiesta" value="accetta">ACCETTA</button>
+                          <!--<form method="POST" action='/rifiuto'>-->
+                        <button type="submit" class="btn buttonRifRichiesta" name="btnRichiesta" value="rifiuta">RIFIUTA</button>
+                          <!--</form>-->
+                      </td>
+                      
+                    </form>
+                      {%if rifiuto == loop.index %}
+                        <form method="POST" action="/rifiuto">
+                          <td class="campiNascosti"><input type="hidden"  name="idAnnuncio" value="{{pren.idAnnuncio}}"></td>
+                          <td class="campiNascosti"><input type="hidden" name="data" value="{{pren.Data}}"></td>
+                          <td class="campiNascosti"><input type="hidden" name="fasciaOraria" value="{{pren.fasciaOraria}}"></td>
+                          <td class="largerTd">
+                            <div class="form-group">
+                              <input type="text" name="motivoRifiuto" class="form-control" placeholder="Motivo del rifiuto" required autofocus>
+                            </div>
+                          </td>
+                          <td class="largerTd"><button type="submit" class="btn buttonInviaRifiuto" name="btnRifiuto" value="inviaRifiuto">INVIA</button></td>
+                        </form>
+                      {% endif %}
+                    {%else%}
+                        <td  colspan="3"></td>
+                    {% endif %}
+                  </tr>
+                {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+      </div>
+    </div>
+
+    <div class="container containerDefault">
+      <h4>Elenco delle tue Prenotazioni</h4>
+      <div style="background-color: #e7effd;">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">Annuncio</th>
+              <th scope="col">Data</th>
+              <th scope="col">tipo Visita</th>
+              <th scope="col">fascia Oraria</th>
+              <th scope="col">stato</th>
+              <th scope="col">motivazione Rifiuto</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for pren in prenotazioniL1 %}
+              {% if pren.idUtente == current_user.id %}
+              <tr>
+                <th scope="row">{{pren.titolo}}</th>
+                <td>{{pren.Data}}</td>
+                <td>{{pren.tipoVisita}}</td>
+                <td>{{pren.fasciaOraria}}</td>
+                <td>{{pren.stato}}</td>
+                {% if pren.motivazioneRifiuto is not none %}
+                  <td>{{pren.motivazioneRifiuto}}</td>
+                {% else %}
+                  <td></td>
+                {% endif%}
+              </tr>
+              {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="container containerDefault">
+      <h4>I tuoi Annunci</h4>
+        <div style="background-color: #e7effd;">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">Annuncio</th>
+                <th scope="col">Indirizzo</th>
+                <th scope="col">Tipologia</th>
+                <th scope="col">Prezzo Mensile</th>
+                <th scope="col">Disponibilità</th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ann in annunci %}
+                <tr>
+                  <th scope="row">{{ann.titolo}}</th>
+                  <td>{{ann.indirizzo}}</td>
+                  <td>{{ann.tipoCasa}}</td>
+                  <td>{{ann.prezzoMensile}}€</td>
+                  <td>{{ann.disponibilita}}</td>
+                  <td>
+                    <form action="/modificaAnn/{{ann.idAnnuncio}}" method="POST">
+                      <button type="submit" class="btn buttonModifica">MODIFICA</button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+    </div>
+    <div class="container containerDefault">
       {% if current_user.is_authenticated %}
             {% if annuncio %} 
             <!--usato per modifica dell'annuncio. Se vero ==> form di modifica
             Se falso ==> form di aggiunta-->
           <form action="/Ann/mod" method="POST" enctype="multipart/form-data">
+            <h4>Modifica un Annuncio</h4>
               <div class="form-group">
-                  <h4>Modifica un Annuncio!</h4>
                   <label for="titolo">Titolo</label>
-                  <input type="text" name="titolo" class="form-control" value="{{annuncio.titolo}}" required>
+                  <input type="text" name="titolo" class="form-control" value="{{annuncio.titolo}}" required autofocus>
               </div>
               <div class="form-group">
                 <label for="indirizzo">Indirizzo</label>
@@ -107,7 +234,7 @@
                           <!--<form action="/rimuoviFoto/{{ annuncio.idAnnuncio }}" method="POST" enctype="multipart/form-data">-->
                               <img src="{{ url_for('static', filename=foto) }}" alt="Foto" class="fotoAnnunci">
                               <input type="hidden" name="idAnnuncio" value="{{ annuncio.idAnnuncio }}">
-                              <button type="submit" class="btn btn-danger" name="rimuoviFoto" value="{{ foto }}">Rimuovi</button>
+                              <button type="submit" class="btn buttonRimuovi" name="rimuoviFoto" value="{{ foto }}">Rimuovi</button>
                           <!--</form>-->
                       </div>
                     {% endfor %}
@@ -137,15 +264,15 @@
                 {% endif %}
               </div>
               <div class="form-group">
-                  <button type="submit" id="annuncio" class="btn btn-danger">Modifica Annuncio</button>
-                  <a href="{{url_for('profilo')}}" class="btn btn-outline-danger">Annulla Modifica</a>
+                  <button type="submit" id="annuncio" class="btn buttonModifica">Modifica Annuncio</button>
+                  <a href="{{url_for('profilo')}}" class="btn buttonRimuovi">Annulla Modifica</a>
                 </div>
             </form>
           {% else %}
+          <h4>Aggiungi un Annuncio</h4>
             <!--form per aggiungere annuncio-->
             <form action="/Ann/new" method="POST" enctype="multipart/form-data">
                 <div class="form-group">
-                    <h4>Aggiungi un Annuncio!</h4>
                     <label for="titolo">Titolo</label>
                     <input type="text" name="titolo" class="form-control" required>
                 </div>
@@ -211,51 +338,18 @@
                   </div>
                 </div>
                 <div class="form-group">
-                    <button type="submit" id="annuncio" class="btn btn-success">Aggiungi Annuncio</button>
+                    <button type="submit" id="buttonAggAnnuncio" class="btn">Aggiungi Annuncio</button>
                 </div>
             </form>
           {% endif %} 
 
       {% endif %}
-      <br>
-      <div class="row">
-          <h4>I tuoi Annunci</h4>
-      </div>
-      <div style="background-color: #e7effd;">
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th scope="col">Titolo</th>
-              <th scope="col">Indirizzo</th>
-              <th scope="col">Tipologia</th>
-              <th scope="col">Prezzo Mensile</th>
-              <th scope="col">Disponibilità</th>
-              <th scope="col"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for ann in annunci %}
-              <tr>
-                <th scope="row">{{ann.titolo}}</th>
-                <td>{{ann.indirizzo}}</td>
-                <td>{{ann.tipoCasa}}</td>
-                <td>{{ann.prezzoMensile}}</td>
-                <td>{{ann.disponibilita}}</td>
-                <td>
-                  <form action="/modificaAnn/{{ann.idAnnuncio}}" method="POST">
-                    <button type="submit" class="btn btn-danger">MODIFICA</button>
-                  </form>
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-
-    <div class="row">
-        <h4>Richieste di Visita</h4>
     </div>
-    <div style="background-color: #e7effd;">
+  {% else %}
+    <!--profilo cliente-->
+    <div class="container containerDefault">
+      <h4>Elenco delle tue Prenotazioni</h4>
+      <div style="background-color: #e7effd;">
         <table class="table table-striped">
           <thead>
             <tr>
@@ -264,76 +358,14 @@
               <th scope="col">tipo Visita</th>
               <th scope="col">fascia Oraria</th>
               <th scope="col">stato</th>
-              <th scope="col"></th>
-              <th scope="col"></th>
-              <th></th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for pren in prenotazioniL2 %}
-              {% if pren.idUtente != current_user.id %}
-                <tr>
-                  {% if pren.stato == 'richiesta' %}
-                    <form action="/gestioneStatoRichiesta" method="POST">
-                      <input type="hidden" name="idAnnuncio" value="{{pren.idAnnuncio}}">
-                      <input type="hidden" name="data" value="{{pren.Data}}">
-                      <input type="hidden" name="fasciaOraria" value="{{pren.fasciaOraria}}">
-                  {%endif%}
-                    <td>{{pren.idAnnuncio}}</td>
-                    <td>{{pren.Data}}</td>
-                    <td>{{pren.tipoVisita}}</td> <!--uso campo hidden per passare al server l'indice che indica la riga selezionata della tabella-->
-                    <td>{{pren.fasciaOraria}}</td>
-                    <td>{{pren.stato}}</td>
-                  {% if pren.stato == 'richiesta' %}
-                    <td>
-                      <input type="hidden" name="indiceRiga" value="{{loop.index}}">
-                      <button type="submit" class="btn btn-success" name="btnRichiesta" value="accetta">ACCETTA</button>
-                        <!--<form method="POST" action='/rifiuto'>-->
-                      <button type="submit" class="btn btn-danger" name="btnRichiesta" value="rifiuta">RIFIUTA</button>
-                        <!--</form>-->
-                    </td>
-                  </form>
-                    {%if rifiuto == loop.index %}
-                      <form method="POST" action="/rifiuto">
-                        <td><input type="hidden" name="idAnnuncio" value="{{pren.idAnnuncio}}"></td>
-                        <td><input type="hidden" name="data" value="{{pren.Data}}"></td>
-                        <td><input type="hidden" name="fasciaOraria" value="{{pren.fasciaOraria}}"></td>
-                        <td>
-                          <div class="form-group">
-                            <input type="text" name="motivoRifiuto" class="form-control" placeholder="Motivo del rifiuto" required autofocus>
-                          </div>
-                        </td>
-                        <td><button type="submit" class="btn btn-primary" name="btnRifiuto" value="inviaRifiuto">INVIA RIFIUTO</button></td>
-                      </form>
-                    {% endif %}
-                  {% endif %}
-                </tr>
-              {% endif %}
-            {% endfor %}
-          </tbody>
-        </table>
-    </div>
-
-    <div class="row">
-      <h4>Elenco Prenotazioni</h4>
-    </div>
-      <div style="background-color: #e7effd;">
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th scope="col">Data</th>
-              <th scope="col">tipo Visita</th>
-              <th scope="col">fascia Oraria</th>
-              <th scope="col">stato</th>
               <th scope="col">motivazione Rifiuto</th>
             </tr>
           </thead>
           <tbody>
-            {% for pren in prenotazioniL1 %}
-              {% if pren.idUtente == current_user.id %}
+            {% for pren in prenotazioni %}
               <tr>
-                <th scope="row">{{pren.Data}}</th>
+                <th scope="row">{{pren.titolo}}</th>
+                <td>{{pren.Data}}</td>
                 <td>{{pren.tipoVisita}}</td>
                 <td>{{pren.fasciaOraria}}</td>
                 <td>{{pren.stato}}</td>
@@ -343,43 +375,10 @@
                   <td></td>
                 {% endif%}
               </tr>
-              {% endif %}
             {% endfor %}
           </tbody>
         </table>
       </div>
-  {% else %}
-    <!--profilo cliente-->
-    <div class="row">
-      <h4>Elenco Prenotazioni</h4>
-    </div>
-    <div style="background-color: #e7effd;">
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th scope="col">Data</th>
-            <th scope="col">tipo Visita</th>
-            <th scope="col">fascia Oraria</th>
-            <th scope="col">stato</th>
-            <th scope="col">motivazione Rifiuto</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for pren in prenotazioni %}
-            <tr>
-              <th scope="row">{{pren.Data}}</th>
-              <td>{{pren.tipoVisita}}</td>
-              <td>{{pren.fasciaOraria}}</td>
-              <td>{{pren.stato}}</td>
-              {% if pren.motivazioneRifiuto is not none %}
-                <td>{{pren.motivazioneRifiuto}}</td>
-              {% else %}
-                <td></td>
-              {% endif%}
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
     </div>
   {%endif%}
 {% endblock %}
