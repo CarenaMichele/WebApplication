@@ -19,7 +19,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container containerDefault">
+<div class="container containerDefault" id="content">
     {% if current_user.is_authenticated %}
           {%if orari is not defined %}
         <!--<form action="" method="POST" enctype="multipart/form-data">-->
@@ -104,5 +104,8 @@
             {% endif %}
         <!--</form>-->
     {% endif %}
-
+</div>
 {% endblock %}
+
+
+

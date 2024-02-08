@@ -52,7 +52,7 @@
           <p class="card-subtitle">{{annuncio.indirizzo}}</p>
           <p class="proprietario">PROPRIETARIO</p>
           <p class="card-text infoProprietario">{{annuncio.nome}} {{annuncio.cognome}}</p>
-          <a href="#myModal" class="btn buttonInformazioniM" data-bs-toggle="modal" data-bs-target="#Modal{{annuncio.idAnnuncio}}">Maggiori Informazioni</a>
+          <a href="#myModal" class="btn buttonInformazioniM" data-bs-toggle="modal" data-bs-target="#Modal{{annuncio.idAnnuncio}}">Scopri di più</a>
         </div>
       </div>
     </div>
@@ -77,10 +77,12 @@
         <p class="card-title">{{annuncio.tipoCasa}}</p>
         <p class="card-text prezzoM">{{annuncio.prezzoMensile}}€</p>
         <p class="card-subtitle">{{annuncio.indirizzo}}</p>
-        <p class="infoSecondarie">{{annuncio.numeroLocali}} locali</p>
         <p class="infoSecondarie">{{annuncio.descrizione}}</p>
+        <p class="infoSecondarie">{{annuncio.numeroLocali}} locali</p>
         {%if annuncio.arredamento == 'SI' %}
           <p class="infoSecondarie">ARREDATO</p>
+        {%else%}
+        <p class="infoSecondarie">NON ARREDATO</p>
         {%endif%}
         <p class="proprietario">PROPRIETARIO</p>
         <p class="card-text infoProprietario">{{annuncio.nome}} {{annuncio.cognome}}</p>
@@ -105,5 +107,9 @@
 {% endfor %}
 {% endblock %}
 
-
+{%block footer%}
+  <footer>
+    <p class="footer-item">&copy; 2024. Tutti i diritti riservati.</p>
+  </footer>     
+{%endblock%}
 
